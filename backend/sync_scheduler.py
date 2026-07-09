@@ -3,6 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from db.sync_status import get_or_create_sync_job, update_sync_job, get_all_sync_jobs
 from typing import Optional
 
@@ -144,22 +145,32 @@ def start_scheduler():
     
     scheduler = BackgroundScheduler()
     
-    # Sync Shopify data every hour
+    # Sync Shopify data every hour (use IntervalTrigger for periods > 59 minutes)
     shopify_sync_interval = int(os.getenv('SHOPIFY_SYNC_INTERVAL_MINUTES', '60'))
+    if shopify_sync_interval <= 59:
+        trigger_shopify = CronTrigger(minute=f'*/{shopify_sync_interval}')
+    else:
+        trigger_shopify = IntervalTrigger(minutes=shopify_sync_interval)
+    
     scheduler.add_job(
         sync_shopify_data,
-        trigger=CronTrigger(minute=f'*/{shopify_sync_interval}'),
+        trigger=trigger_shopify,
         id='shopify_sync_job',
         name='Shopify data sync',
         replace_existing=True
     )
     logger.info(f'Scheduled Shopify sync every {shopify_sync_interval} minutes')
     
-    # Sync Amazon data every 2 hours
+    # Sync Amazon data every 2 hours (use IntervalTrigger for periods > 59 minutes)
     amazon_sync_interval = int(os.getenv('AMAZON_SYNC_INTERVAL_MINUTES', '120'))
+    if amazon_sync_interval <= 59:
+        trigger_amazon = CronTrigger(minute=f'*/{amazon_sync_interval}')
+    else:
+        trigger_amazon = IntervalTrigger(minutes=amazon_sync_interval)
+    
     scheduler.add_job(
         sync_amazon_data,
-        trigger=CronTrigger(minute=f'*/{amazon_sync_interval}'),
+        trigger=trigger_amazon,
         id='amazon_sync_job',
         name='Amazon data sync',
         replace_existing=True
