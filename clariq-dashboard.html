@@ -625,7 +625,7 @@ else{actionType='discount'}
 var productName=(msg.match(/for (.+?)$/)||['',''])[1]||msg;
 var metadata={message:msg,timestamp:new Date().toISOString()};
 
-fetch('/api/actions/log',{
+fetch('https://api.tryclariq.com/api/actions/log',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
@@ -745,7 +745,7 @@ async function fetchReorder(){
 	content.innerHTML='<h3>Loading recommendations...</h3>';
 	overlay.classList.add('show');
 	try{
-		var res=await fetch('/api/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+		var res=await fetch('https://api.tryclariq.com/api/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
 		var json=await res.json();
 		if(!res.ok){content.innerHTML='<h3>Error</h3><div>'+ (json.detail||JSON.stringify(json)) +'</div>';return}
 		var recs=json.recommendations||[];
@@ -767,7 +767,7 @@ async function fetchReorder(){
 
 async function placeReorder(productId,title){
 	try{
-		const res=await fetch('/api/actions/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:'reorder',product_id:productId,metadata:title})});
+		const res=await fetch('https://api.tryclariq.com/api/actions/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:'reorder',product_id:productId,metadata:title})});
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		closeModal();
@@ -786,7 +786,7 @@ async function connectStore(platform){
 	if(!name){toast('Please enter a store name','error');return}
 	try{
 		var body={platform:platform.toLowerCase(),store_name:name,store_url:url,api_key:api,connection_method:'api'};
-		var res=await fetch('/api/connections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+		var res=await fetch('https://api.tryclariq.com/api/connections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 		var json=await res.json();
 		if(!res.ok){throw new Error(json.detail||JSON.stringify(json))}
 		// add to connections table
@@ -830,7 +830,7 @@ if(e.key==='Escape')closeModal();
 /* === PILOT ADMIN PAGE === */
 async function downloadPilotPDF(pilotId,pilotName){
 	try{
-		const res=await fetch('/api/pilot/report/'+pilotId);
+		const res=await fetch('https://api.tryclariq.com/api/pilot/report/'+pilotId);
 		if(!res.ok)throw new Error('PDF download failed');
 		const blob=await res.blob();
 		const url=window.URL.createObjectURL(blob);
@@ -847,7 +847,7 @@ async function downloadPilotPDF(pilotId,pilotName){
 
 async function loadPilotVelocity(pilotId,pilotName){
 	try{
-		const res=await fetch('/api/pilot/analytics/velocity/'+pilotId);
+		const res=await fetch('https://api.tryclariq.com/api/pilot/analytics/velocity/'+pilotId);
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||'Failed to load velocity data');
 		
@@ -896,7 +896,7 @@ async function loadPilotVelocity(pilotId,pilotName){
 
 async function loadPilotComparison(){
 	try{
-		const res=await fetch('/api/pilot/results');
+		const res=await fetch('https://api.tryclariq.com/api/pilot/results');
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		
@@ -988,7 +988,7 @@ async function loadPilotComparison(){
 
 async function loadCohortAnalysis(){
 	try{
-		const res=await fetch('/api/pilot/analytics/cohorts');
+		const res=await fetch('https://api.tryclariq.com/api/pilot/analytics/cohorts');
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1056,7 +1056,7 @@ async function loadCohortAnalysis(){
 async function loadROIAnalytics(){
 	try{
 		// Load program-wide ROI comparison
-		const res=await fetch('/api/roi/comparison');
+		const res=await fetch('https://api.tryclariq.com/api/roi/comparison');
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1126,7 +1126,7 @@ async function loadROIAnalytics(){
 
 async function loadPerformanceDashboard(){
 	try{
-		const res=await fetch('/api/performance/health');
+		const res=await fetch('https://api.tryclariq.com/api/performance/health');
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1239,7 +1239,7 @@ async function loadPerformanceDashboard(){
 
 async function loadPilots(){
 	try{
-		const res=await fetch('/api/pilot/list');
+		const res=await fetch('https://api.tryclariq.com/api/pilot/list');
 		const data=await res.json();
 		const pilots=data.pilots||[];
 		
@@ -1300,7 +1300,7 @@ function filterPilots(){
 
 async function loadPilotReorderCount(){
 	try{
-		const res=await fetch('/api/actions/count/reorder');
+		const res=await fetch('https://api.tryclariq.com/api/actions/count/reorder');
 		const j=await res.json();
 	}catch(err){}
 }
@@ -1332,7 +1332,7 @@ function switchPilotTab(tab){
 
 async function loadPilotResults(){
 	try{
-		const res=await fetch('/api/pilot/results');
+		const res=await fetch('https://api.tryclariq.com/api/pilot/results');
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		const s=j.summary;
@@ -1392,7 +1392,7 @@ async function loadPilotResults(){
 
 async function contactPilot(id){
 	try{
-		const res=await fetch('/api/pilot/contact/'+id,{method:'POST'});
+		const res=await fetch('https://api.tryclariq.com/api/pilot/contact/'+id,{method:'POST'});
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		const p=j.pilot;
@@ -1412,7 +1412,7 @@ async function contactPilot(id){
 
 async function previewPilotEmail(id,name){
 	try{
-		const res=await fetch('/api/pilot/email/'+id);
+		const res=await fetch('https://api.tryclariq.com/api/pilot/email/'+id);
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		var c=document.getElementById('modalContent');
@@ -1424,7 +1424,7 @@ async function previewPilotEmail(id,name){
 
 async function sendPilotResultsEmail(pilotId,pilotName,reorderCount,estValue,daysActive){
 	try{
-		const res=await fetch('/api/pilot/results-email/'+pilotId,{
+		const res=await fetch('https://api.tryclariq.com/api/pilot/results-email/'+pilotId,{
 			method:'POST',
 			headers:{'Content-Type':'application/json'},
 			body:JSON.stringify({reorder_count:reorderCount,est_value:estValue,days_active:daysActive})
@@ -1438,7 +1438,7 @@ async function sendPilotResultsEmail(pilotId,pilotName,reorderCount,estValue,day
 async function completePilot(pilotId,pilotName){
 	if(!confirm('Mark '+pilotName+' as completed?')) return;
 	try{
-		const res=await fetch('/api/pilot/complete/'+pilotId,{method:'POST'});
+		const res=await fetch('https://api.tryclariq.com/api/pilot/complete/'+pilotId,{method:'POST'});
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		toast('Pilot marked as completed','success');
@@ -1448,7 +1448,7 @@ async function completePilot(pilotId,pilotName){
 
 async function exportPilotsCsv(){
 	try{
-		const res=await fetch('/api/pilot/export');
+		const res=await fetch('https://api.tryclariq.com/api/pilot/export');
 		const txt=await res.text();
 		if(!res.ok)throw new Error(txt);
 		const blob=new Blob([txt],{type:'text/csv'});
@@ -1463,7 +1463,7 @@ async function exportPilotsCsv(){
 async function openAdvancedExport(){
 	try{
 		// Load available columns
-		const res=await fetch('/api/export/columns/pilots');
+		const res=await fetch('https://api.tryclariq.com/api/export/columns/pilots');
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1524,7 +1524,7 @@ async function performAdvancedExport(){
 
 async function loadReportSubscriptions(){
 	try{
-		const res=await fetch('/api/reports/subscriptions');
+		const res=await fetch('https://api.tryclariq.com/api/reports/subscriptions');
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1562,7 +1562,7 @@ async function subscribeToReports(){
 		
 		if(!email||reportTypes.length===0){toast('Please enter email and select at least one report type','warn');return;}
 		
-		const res=await fetch('/api/reports/subscribe',{
+		const res=await fetch('https://api.tryclariq.com/api/reports/subscribe',{
 			method:'POST',
 			headers:{'Content-Type':'application/json'},
 			body:JSON.stringify({recipient_email:email,recipient_name:name||'Team',frequency:frequency,day_of_week:day,report_types:reportTypes,enabled:true})
@@ -1580,7 +1580,7 @@ async function subscribeToReports(){
 async function unsubscribeFromReports(email,btn){
 	if(!confirm('Unsubscribe '+email+' from reports?'))return;
 	try{
-		const res=await fetch('/api/reports/unsubscribe/'+encodeURIComponent(email),{method:'DELETE'});
+		const res=await fetch('https://api.tryclariq.com/api/reports/unsubscribe/'+encodeURIComponent(email),{method:'DELETE'});
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		toast('Unsubscribed successfully','success');
@@ -1590,7 +1590,7 @@ async function unsubscribeFromReports(email,btn){
 
 async function previewReport(reportType){
 	try{
-		const res=await fetch('/api/reports/preview/'+reportType);
+		const res=await fetch('https://api.tryclariq.com/api/reports/preview/'+reportType);
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1606,7 +1606,7 @@ async function previewReport(reportType){
 
 async function viewPilotMilestones(pilotId,pilotName){
 	try{
-		const res=await fetch('/api/alerts/pilot/'+pilotId);
+		const res=await fetch('https://api.tryclariq.com/api/alerts/pilot/'+pilotId);
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1655,7 +1655,7 @@ function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;
 <script>
 async function generateEmail(pilotId){
 	try{
-		const res=await fetch('/api/pilot/email/'+pilotId);
+		const res=await fetch('https://api.tryclariq.com/api/pilot/email/'+pilotId);
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		document.getElementById('pilotEmailBody').textContent = j.email_preview || '';
@@ -1674,7 +1674,7 @@ async function generateEmail(pilotId){
 /* === SYNC === */
 async function loadSyncStatus(){
 	try{
-		const res=await fetch('/api/sync/status');
+		const res=await fetch('https://api.tryclariq.com/api/sync/status');
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		
@@ -1697,7 +1697,7 @@ async function loadSyncStatus(){
 		document.getElementById('sync-status-container').innerHTML=html||'<div class="ps">No sync data available</div>';
 		
 		// Load job history
-		const jobRes=await fetch('/api/sync/jobs');
+		const jobRes=await fetch('https://api.tryclariq.com/api/sync/jobs');
 		const jobData=await jobRes.json();
 		if(jobRes.ok){
 			let jobHtml='';
@@ -1729,7 +1729,7 @@ async function triggerAllSyncs(){
 		const btn=event.target;
 		btn.disabled=true;
 		btn.textContent='Syncing...';
-		const res=await fetch('/api/sync/all/now',{method:'POST'});
+		const res=await fetch('https://api.tryclariq.com/api/sync/all/now',{method:'POST'});
 		const data=await res.json();
 		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
 		toast('All syncs triggered successfully','success');
@@ -1835,7 +1835,7 @@ async function bulkAction(action){
 				window.exportPilot?.(id);
 			}else if(action==='email'){
 				// Send emails
-				await fetch('/api/alerts/send-all');
+				await fetch('https://api.tryclariq.com/api/alerts/send-all');
 			}
 		}
 		deselectAllRows();

@@ -396,7 +396,7 @@ function submitPilot(){
   var email=document.getElementById('pilotEmail').value.trim();
   var store=document.getElementById('pilotStore').value.trim();
   if(!name||!email||!store){alert('Please fill name, email, and store name');return}
-  fetch('/api/pilot/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,store_name:store,platform:'Shopify',notes:'Pilot application via landing page'})})
+  fetch('https://api.tryclariq.com/api/pilot/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,store_name:store,platform:'Shopify',notes:'Pilot application via landing page'})})
     .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.detail||JSON.stringify(j));return j})})
     .then(function(j){alert('Application received — we\'ll email you soon');document.getElementById('pilotName').value='';document.getElementById('pilotEmail').value='';document.getElementById('pilotStore').value='';})
     .catch(function(err){alert('Application failed: '+err.message)})
