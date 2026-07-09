@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import Optional
 from db.pilots_db import list_pilots, get_pilot
 from db.actions_db import get_actions, count_actions
+from db.revenue_calc import calculate_pilot_revenue
 from datetime import datetime
 
 router = APIRouter()
@@ -45,6 +46,10 @@ async def get_pilot_results():
             if days_active > 0:
                 velocity = round(reorder_count / days_active, 2)
             
+            # calculate real revenue from Snowflake order data
+            revenue_data = calculate_pilot_revenue(pilot_id)
+            real_revenue = revenue_data.get('total_revenue', 0)
+            
             results.append({
                 "id": pilot_id,
                 "name": p['name'],
@@ -61,7 +66,9 @@ async def get_pilot_results():
                 "query_count": pilot_actions.get('query', 0),
                 "total_actions": sum(pilot_actions.values()),
                 "reorder_velocity": velocity,  # reorders per day
-                "est_value": reorder_count * 5,  # rough estimate: $5 per reorder action
+                "total_revenue": real_revenue,  # actual revenue from Snowflake orders
+                "est_value": real_revenue if real_revenue > 0 else (reorder_count * 5),  # real if available, else estimate
+                "revenue_data_quality": revenue_data.get('data_quality', 'estimated'),  # "real" or "estimated"
             })
         
         # aggregate stats
@@ -70,6 +77,7 @@ async def get_pilot_results():
         total_actions = sum(r['total_actions'] for r in results)
         total_reorders = sum(r['reorder_count'] for r in results)
         avg_reorders = round(total_reorders / total_pilots, 2) if total_pilots > 0 else 0
+        total_real_revenue = sum(r['total_revenue'] for r in results)
         total_est_value = sum(r['est_value'] for r in results)
         
         return {
@@ -84,7 +92,9 @@ async def get_pilot_results():
                 "total_promotions": type_counts['promotion'],
                 "total_queries": type_counts['query'],
                 "avg_reorders_per_pilot": avg_reorders,
-                "est_total_value": total_est_value,
+                "total_real_revenue": round(total_real_revenue, 2),  # actual revenue from Snowflake
+                "est_total_value": total_est_value,  # fallback estimates
+                "data_quality": "real" if total_real_revenue > 0 else "estimated",  # indicates if revenue is real or estimated
             }
         }
     except Exception as e:
