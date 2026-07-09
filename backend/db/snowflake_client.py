@@ -1,7 +1,19 @@
-import snowflake.connector
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+try:
+    import snowflake.connector
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
+    logger.warning("Snowflake connector not available - queries will fail")
 
 def get_connection():
+    if not SNOWFLAKE_AVAILABLE:
+        raise ImportError("Snowflake connector not installed. Install with: pip install snowflake-connector-python")
+    
     return snowflake.connector.connect(
         account=os.getenv("SNOWFLAKE_ACCOUNT"),
         user=os.getenv("SNOWFLAKE_USER"),

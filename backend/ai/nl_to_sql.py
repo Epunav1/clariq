@@ -1,5 +1,14 @@
-import anthropic
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+    logger.warning("Anthropic not available - NL to SQL queries will not work")
 
 # On Railway, environment variables are already set via the Variables tab
 # On local dev, load from .env file
@@ -33,6 +42,9 @@ RAW_ORDER_LINE_ITEMS: line_item_id (VARCHAR), order_id (VARCHAR),
 
 def get_client():
     """Get Anthropic client with API key from environment."""
+    if not ANTHROPIC_AVAILABLE:
+        raise ImportError("Anthropic not installed - install with: pip install anthropic")
+    
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY not set in environment")
@@ -41,6 +53,9 @@ def get_client():
 
 def question_to_sql(question: str) -> str:
     """Convert a natural language question to Snowflake SQL."""
+    if not ANTHROPIC_AVAILABLE:
+        return f"SELECT 'ERROR: Anthropic not installed' AS error, '{question}' AS question LIMIT 1"
+    
     client = get_client()
     
     message = client.messages.create(
