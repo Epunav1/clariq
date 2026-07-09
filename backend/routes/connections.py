@@ -208,7 +208,15 @@ async def sync_connection(conn_id: str):
 @router.post("/manual/order")
 async def add_manual_order(order: ManualOrder):
     """Add a single order manually — for small businesses, market vendors, solo sellers."""
-    from db.snowflake_client import get_connection as get_sf
+    try:
+        from db.snowflake_client import get_connection as get_sf
+        SNOWFLAKE_AVAILABLE = True
+    except ImportError:
+        SNOWFLAKE_AVAILABLE = False
+    
+    if not SNOWFLAKE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Snowflake connection not available")
+    
     try:
         conn = get_sf()
         cursor = conn.cursor()
@@ -245,7 +253,15 @@ async def add_manual_order(order: ManualOrder):
 @router.post("/manual/product")
 async def add_manual_product(product: ManualProduct):
     """Add a single product manually."""
-    from db.snowflake_client import get_connection as get_sf
+    try:
+        from db.snowflake_client import get_connection as get_sf
+        SNOWFLAKE_AVAILABLE = True
+    except ImportError:
+        SNOWFLAKE_AVAILABLE = False
+    
+    if not SNOWFLAKE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Snowflake connection not available")
+    
     try:
         conn = get_sf()
         cursor = conn.cursor()
@@ -276,7 +292,15 @@ async def add_manual_product(product: ManualProduct):
 @router.post("/manual/customer")
 async def add_manual_customer(customer: ManualCustomer):
     """Add a single customer manually."""
-    from db.snowflake_client import get_connection as get_sf
+    try:
+        from db.snowflake_client import get_connection as get_sf
+        SNOWFLAKE_AVAILABLE = True
+    except ImportError:
+        SNOWFLAKE_AVAILABLE = False
+    
+    if not SNOWFLAKE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Snowflake connection not available")
+    
     try:
         conn = get_sf()
         cursor = conn.cursor()

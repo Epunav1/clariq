@@ -1,7 +1,12 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
-from db.snowflake_client import run_query
+
+try:
+    from db.snowflake_client import run_query
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
 
 router = APIRouter()
 
