@@ -43,6 +43,7 @@ from routes.actions import router as actions_router
 from routes.sync import router as sync_router
 from routes.webhooks import router as webhooks_router
 from routes.reports import router as reports_router
+from routes.roi import router as roi_router
 from sync_scheduler import start_scheduler, stop_scheduler
 # from routes.auth import router as auth_router
 
@@ -57,6 +58,7 @@ app.include_router(actions_router, prefix="/api/actions")
 app.include_router(sync_router, prefix="/api/sync")
 app.include_router(webhooks_router, prefix="/api/webhook")
 app.include_router(reports_router, prefix="/api/reports")
+app.include_router(roi_router, prefix="/api/roi")
 # app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 # Startup and shutdown events for background scheduler

@@ -310,15 +310,64 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 
 <!-- REPORTS -->
 <div class="page" id="pg-reports">
-<div class="pt">Reports</div>
-<div class="ps">Saved and scheduled reports.</div>
-<table class="tbl"><thead><tr><th>Report</th><th>Type</th><th>Last run</th><th>Schedule</th><th>Action</th></tr></thead>
-<tbody>
-<tr onclick="showModal('report','Weekly revenue summary')"><td><b>Weekly revenue summary</b></td><td>Revenue</td><td>Apr 14</td><td>Every Monday</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-<tr onclick="showModal('report','Monthly product performance')"><td><b>Monthly product performance</b></td><td>Products</td><td>Apr 1</td><td>1st of month</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-<tr onclick="showModal('report','Customer retention report')"><td><b>Customer retention report</b></td><td>Customers</td><td>Mar 30</td><td>Bi-weekly</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-<tr onclick="showModal('report','Platform comparison')"><td><b>Platform comparison</b></td><td>Multi-platform</td><td>Apr 10</td><td>Weekly</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-</tbody></table>
+<div class="pt">Email Reports</div>
+<div class="ps">Configure automated pilot program reports sent to your email.</div>
+
+<div style="background:var(--alt);border-radius:var(--r);padding:16px;margin-bottom:18px">
+	<div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--ink1)">Subscribe to reports</div>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Email address</label>
+			<input type="email" id="reportEmail" placeholder="your@email.com" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+		</div>
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Name</label>
+			<input type="text" id="reportName" placeholder="Your name" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+		</div>
+	</div>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Frequency</label>
+			<select id="reportFrequency" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+				<option value="weekly">Weekly</option>
+				<option value="daily">Daily</option>
+				<option value="monthly">Monthly</option>
+			</select>
+		</div>
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Day of week</label>
+			<select id="reportDay" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+				<option value="0">Monday</option>
+				<option value="1" selected>Tuesday</option>
+				<option value="2">Wednesday</option>
+				<option value="3">Thursday</option>
+				<option value="4">Friday</option>
+				<option value="5">Saturday</option>
+				<option value="6">Sunday</option>
+			</select>
+		</div>
+	</div>
+	<div>
+		<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Report types</label>
+		<div style="display:flex;gap:12px">
+			<label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+				<input type="checkbox" id="reportWeeklySummary" checked> Weekly Summary
+			</label>
+			<label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+				<input type="checkbox" id="reportCohortAnalysis"> Cohort Analysis
+			</label>
+		</div>
+	</div>
+	<div style="margin-top:12px">
+		<button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="subscribeToReports()">Subscribe</button>
+		<button class="sg-btn" style="margin-left:8px" onclick="previewReport('weekly_summary')">Preview weekly report</button>
+	</div>
+</div>
+
+<div style="margin-top:20px">
+	<div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--ink1)">Active subscriptions</div>
+	<table class="tbl"><thead><tr><th>Email</th><th>Frequency</th><th>Reports</th><th>Next send</th><th>Action</th></tr></thead><tbody id="subscriptionsList"></tbody></table>
+</div>
 </div>
 
 <!-- CONNECTIONS -->
@@ -359,9 +408,15 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div style="display:flex;gap:16px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:0">
 <button class="ni on" data-pilot-tab="applicants" onclick="switchPilotTab('applicants')" style="border:0;padding:8px 0;border-bottom:2.5px solid var(--brand);margin-bottom:-1px;flex-shrink:0">Applicants</button>
 <button class="ni" data-pilot-tab="results" onclick="switchPilotTab('results')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Results & ROI</button>
+<button class="ni" data-pilot-tab="comparison" onclick="switchPilotTab('comparison')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Comparison</button>
+<button class="ni" data-pilot-tab="cohorts" onclick="switchPilotTab('cohorts')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Cohorts</button>
+<button class="ni" data-pilot-tab="roi" onclick="switchPilotTab('roi')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">ROI Analytics</button>
 </div>
 <div id="pilot-applicants-view" class="pilot-view"></div>
 <div id="pilot-results-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-comparison-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-cohorts-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-roi-view" class="pilot-view" style="display:none"></div>
 </div>
 
 <!-- BILLING -->
@@ -776,14 +831,190 @@ async function loadPilotVelocity(pilotId,pilotName){
 	}catch(err){toast('Failed to load velocity: '+err.message,'error')}
 }
 
+async function loadPilotComparison(){
+	try{
+		const res=await fetch('/api/pilot/results');
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		
+		const pilots=j.pilots||[];
+		if(pilots.length===0){document.getElementById('pilot-comparison-view').innerHTML='<div class="pt">Comparison</div><div class="ps">No pilots to compare</div>';return;}
+		
+		// Score each pilot
+		const scored=pilots.map(p=>{
+			const score={
+				id:p.id,
+				name:p.name,
+				store:p.store_name,
+				days:p.days_active||0,
+				reorders:p.reorder_count||0,
+				revenue:p.total_revenue||p.est_value||0,
+				velocity:p.reorder_velocity||0,
+				discounts:p.discount_count||0,
+				status:p.status||'new'
+			};
+			return score;
+		});
+		
+		// Calculate performance tiers
+		const maxReorders=Math.max(...scored.map(p=>p.reorders),1);
+		const maxRevenue=Math.max(...scored.map(p=>p.revenue),1);
+		const maxVelocity=Math.max(...scored.map(p=>p.velocity),0.1);
+		const avgDays=scored.reduce((sum,p)=>sum+p.days,0)/scored.length;
+		
+		scored.forEach(p=>{
+			const reorderScore=(p.reorders/maxReorders)*100;
+			const revenueScore=(p.revenue/maxRevenue)*100;
+			const velocityScore=(p.velocity/maxVelocity)*100;
+			const engagementScore=p.status==='completed'?100:p.status==='contacted'?60:0;
+			
+			p.performanceScore=Math.round((reorderScore+revenueScore+velocityScore+engagementScore)/4);
+			
+			if(p.performanceScore>=80){p.tier='top';p.tierLabel='🏆 Top'}
+			else if(p.performanceScore>=60){p.tier='growing';p.tierLabel='📈 Growing'}
+			else if(p.performanceScore>=40){p.tier='steady';p.tierLabel='⏸ Steady'}
+			else{p.tier='early';p.tierLabel='🌱 Early'}
+		});
+		
+		// Sort by performance
+		scored.sort((a,b)=>b.performanceScore-a.performanceScore);
+		
+		let html='<div class="pt">Pilot Comparison</div><div class="ps">Performance benchmarking across all pilots. Pilots are ranked by engagement, revenue, and reorder activity.</div>';
+		
+		// Summary stats
+		html+='<div class="money" style="margin-bottom:18px">';
+		const topPerformer=scored[0];
+		html+='<div class="mc"><div class="ml">Top performer</div><div class="mv">'+escapeHtml(topPerformer.name)+'</div></div>';
+		html+='<div class="mc"><div class="ml">Avg score</div><div class="mv">'+Math.round(scored.reduce((s,p)=>s+p.performanceScore,0)/scored.length)+'%</div></div>';
+		html+='<div class="mc"><div class="ml">Top tier pilots</div><div class="mv">'+scored.filter(p=>p.tier==='top').length+'</div></div>';
+		html+='<div class="mc"><div class="ml">Total pilots</div><div class="mv">'+scored.length+'</div></div>';
+		html+='</div>';
+		
+		// Tier summary
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:var(--ink2)">Tier Breakdown</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+		const tiers=[{k:'top',l:'🏆 Top'},{k:'growing',l:'📈 Growing'},{k:'steady',l:'⏸ Steady'},{k:'early',l:'🌱 Early'}];
+		tiers.forEach(t=>{
+			const count=scored.filter(p=>p.tier===t.k).length;
+			const pct=count>0?Math.round((count/scored.length)*100)+'%':'0%';
+			html+='<div style="background:#fff;padding:10px;border-radius:6px;border-left:3px solid '+(t.k==='top'?'#ffc107':t.k==='growing'?'#28a745':t.k==='steady'?'#0066cc':'#6c757d')+'"><div style="font-size:11px;color:var(--ink3)">'+t.l+'</div><div style="font-size:16px;font-weight:700">'+count+'</div><div style="font-size:10px;color:var(--ink3)">'+pct+'</div></div>';
+		});
+		html+='</div></div>';
+		
+		// Comparison table
+		html+='<table class="tbl"><thead><tr><th>Rank</th><th>Pilot</th><th>Tier</th><th>Score</th><th>Days</th><th>Reorders</th><th>Revenue</th><th>Velocity</th><th>Status</th></tr></thead><tbody>';
+		scored.forEach((p,idx)=>{
+			html+='<tr style="background:'+(idx<3?'#f0f7ff':'')+'">';
+			html+='<td style="font-weight:700;color:var(--brand)">#'+(idx+1)+'</td>';
+			html+='<td><b>'+escapeHtml(p.name)+'</b></td>';
+			html+='<td>'+p.tierLabel+'</td>';
+			html+='<td><div style="width:60px;background:var(--alt);border-radius:4px;overflow:hidden;height:20px;position:relative"><div style="background:var(--brand);height:100%;width:'+p.performanceScore+'%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff">'+p.performanceScore+'%</div></div></td>';
+			html+='<td>'+p.days+'</td>';
+			html+='<td><span style="color:'+(p.reorders>0?'var(--good)':'var(--ink3)');font-weight:700">'+p.reorders+'</span></td>';
+			html+='<td>$'+Math.round(p.revenue)+'</td>';
+			html+='<td>'+Number(p.velocity).toFixed(2)+'/day</td>';
+			html+='<td><span style="padding:2px 6px;background:'+(p.status==='completed'?'var(--good)':p.status==='contacted'?'var(--brand)':'var(--alt)')+';color:'+(p.status==='completed'?'#fff':'var(--ink2)')+';font-size:10px;border-radius:3px">'+p.status+'</span></td>';
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		
+		document.getElementById('pilot-comparison-view').innerHTML=html;
+	}catch(err){document.getElementById('pilot-comparison-view').innerHTML='<div class="pt">Comparison</div><div class="ps">Failed to load comparison: '+err.message+'</div>'}
+}
+
+async function loadCohortAnalysis(){
+	try{
+		const res=await fetch('/api/pilot/analytics/cohorts');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const cohorts=data.cohorts||[];
+		const summary=data.summary||{};
+		
+		if(cohorts.length===0){document.getElementById('pilot-cohorts-view').innerHTML='<div class="pt">Cohorts</div><div class="ps">No cohort data available</div>';return;}
+		
+		let html='<div class="pt">Cohort Analysis</div><div class="ps">Track pilot program performance by signup cohort. Identify which weeks perform best.</div>';
+		
+		// Summary cards
+		html+='<div class="money" style="margin-bottom:18px">';
+		html+='<div class="mc"><div class="ml">Total cohorts</div><div class="mv">'+summary.total_cohorts+'</div></div>';
+		html+='<div class="mc"><div class="ml">Avg engagement</div><div class="mv">'+summary.avg_engagement_rate+'%</div></div>';
+		html+='<div class="mc"><div class="ml">Strong cohorts</div><div class="mv">'+summary.strong_cohorts+'</div></div>';
+		html+='<div class="mc"><div class="ml">Best cohort</div><div class="mv">'+summary.best_performing_cohort+'</div></div>';
+		html+='</div>';
+		
+		// Cohort health breakdown
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:var(--ink2)">Cohort Health Distribution</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+		const healthTiers=[{k:'strong',l:'💪 Strong'},{k:'healthy',l:'✓ Healthy'},{k:'emerging',l:'🌱 Emerging'},{k:'early',l:'⏳ Early'}];
+		healthTiers.forEach(tier=>{
+			const count=cohorts.filter(c=>c.health===tier.k).length;
+			html+='<div style="background:#fff;padding:10px;border-radius:6px;border-left:3px solid '+(tier.k==='strong'?'#28a745':tier.k==='healthy'?'#0066cc':tier.k==='emerging'?'#ffc107':'#6c757d')+'"><div style="font-size:11px;color:var(--ink3)">'+tier.l+'</div><div style="font-size:16px;font-weight:700">'+count+'</div></div>';
+		});
+		html+='</div></div>';
+		
+		// Cohort comparison table
+		html+='<table class="tbl"><thead><tr><th>Cohort</th><th>Size</th><th>Engagement</th><th>Completion</th><th>Avg Reorders</th><th>Total Revenue</th><th>Health</th></tr></thead><tbody>';
+		cohorts.forEach(c=>{
+			html+='<tr>';
+			html+='<td><b>'+escapeHtml(c.label)+'</b></td>';
+			html+='<td>'+c.size+'</td>';
+			html+='<td><div style="width:60px;background:var(--alt);border-radius:4px;overflow:hidden;height:18px"><div style="background:var(--brand);height:100%;width:'+c.engagement_rate+'%;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600">'+c.engagement_rate+'%</div></div></td>';
+			html+='<td>'+c.completion_rate+'%</td>';
+			html+='<td>'+Number(c.avg_reorders).toFixed(2)+'</td>';
+			html+='<td>$'+Math.round(c.total_revenue)+'</td>';
+			html+='<td><span style="padding:2px 6px;background:'+(c.health==='strong'?'#28a745':c.health==='healthy'?'#0066cc':c.health==='emerging'?'#ffc107':'#6c757d')+';color:#fff;font-size:10px;border-radius:3px">'+c.health_label+'</span></td>';
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		
+		// Top pilots per cohort
+		html+='<div style="margin-top:20px;padding:16px;background:var(--alt);border-radius:var(--r)">';
+		html+='<div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--ink1)">Top Performers by Cohort</div>';
+		cohorts.slice(0,3).forEach(c=>{
+			const topPilots=c.pilots.sort((a,b)=>b.reorders-a.reorders).slice(0,2);
+			if(topPilots.length>0){
+				html+='<div style="margin-bottom:12px">';
+				html+='<div style="font-size:12px;font-weight:600;color:var(--ink2)">'+escapeHtml(c.label)+'</div>';
+				topPilots.forEach(p=>{
+					html+='<div style="font-size:11px;color:var(--ink3);margin-left:8px">• '+escapeHtml(p.name)+' - '+p.reorders+' reorders</div>';
+				});
+				html+='</div>';
+			}
+		});
+		html+='</div>';
+		
+		document.getElementById('pilot-cohorts-view').innerHTML=html;
+	}catch(err){document.getElementById('pilot-cohorts-view').innerHTML='<div class="pt">Cohorts</div><div class="ps">Failed to load cohort analysis: '+err.message+'</div>'}
+}
+
 async function loadPilots(){
 	try{
 		const res=await fetch('/api/pilot/list');
 		const data=await res.json();
 		const pilots=data.pilots||[];
-		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button></div><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Platform</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+		
+		// Store pilots globally for filtering
+		window.allPilots=pilots;
+		
+		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button></div>';
+		
+		// Add search and filter controls
+		html+='<div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap">';
+		html+='<input type="text" id="pilotSearch" placeholder="Search name, email, store..." style="padding:6px 8px;border:1px solid var(--alt);border-radius:4px;flex:1;min-width:200px" onkeyup="filterPilots()">';
+		html+='<select id="pilotStatusFilter" style="padding:6px 8px;border:1px solid var(--alt);border-radius:4px" onchange="filterPilots()">';
+		html+='<option value="">All statuses</option>';
+		html+='<option value="new">New</option>';
+		html+='<option value="contacted">Contacted</option>';
+		html+='<option value="completed">Completed</option>';
+		html+='</select>';
+		html+='</div>';
+		
+		html+='<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Platform</th><th>Status</th><th>Actions</th></tr></thead><tbody id="pilot-table-body">';
 		pilots.forEach(function(p){
-			html+='<tr id="pilot-'+p.id+'">';
+			html+='<tr id="pilot-'+p.id+'" class="pilot-row" data-name="'+(p.name||'').toLowerCase()+'" data-email="'+(p.email||'').toLowerCase()+'" data-store="'+(p.store_name||'').toLowerCase()+'" data-status="'+(p.status||'')+'">';
 			html+='<td><b>'+escapeHtml(p.name||'')+'</b></td>';
 			html+='<td>'+(p.email||'')+'</td>';
 			html+='<td>'+(p.store_name||'')+'</td>';
@@ -800,6 +1031,24 @@ async function loadPilots(){
 		document.getElementById('pilot-applicants-view').innerHTML=html;
 		loadPilotReorderCount();
 	}catch(err){document.getElementById('pilot-applicants-view').innerHTML='<div class="pt">Pilot Applicants</div><div class="ps">Failed to load applicants: '+err.message+'</div>'}
+}
+
+function filterPilots(){
+	const searchTerm=(document.getElementById('pilotSearch')?.value||'').toLowerCase();
+	const statusFilter=document.getElementById('pilotStatusFilter')?.value||'';
+	const rows=document.querySelectorAll('.pilot-row');
+	
+	rows.forEach(row=>{
+		const name=row.dataset.name||'';
+		const email=row.dataset.email||'';
+		const store=row.dataset.store||'';
+		const status=row.dataset.status||'';
+		
+		const matchesSearch=!searchTerm || name.includes(searchTerm) || email.includes(searchTerm) || store.includes(searchTerm);
+		const matchesStatus=!statusFilter || status===statusFilter;
+		
+		row.style.display=(matchesSearch && matchesStatus)?'':'none';
+	});
 }
 
 async function loadPilotReorderCount(){
@@ -822,6 +1071,12 @@ function switchPilotTab(tab){
 	}else if(tab==='results'){
 		document.getElementById('pilot-results-view').style.display='block';
 		loadPilotResults();
+	}else if(tab==='comparison'){
+		document.getElementById('pilot-comparison-view').style.display='block';
+		loadPilotComparison();
+	}else if(tab==='cohorts'){
+		document.getElementById('pilot-cohorts-view').style.display='block';
+		loadCohortAnalysis();
 	}
 }
 
@@ -848,6 +1103,21 @@ async function loadPilotResults(){
 		html+='<div><div style="font-size:11px;color:var(--ink3)">Promotions</div><div style="font-size:16px;font-weight:700;color:var(--warn)">'+s.total_promotions+'</div></div>';
 		html+='<div><div style="font-size:11px;color:var(--ink3)">Queries</div><div style="font-size:16px;font-weight:700;color:var(--ink2)">'+s.total_queries+'</div></div>';
 		html+='</div></div>';
+		
+		// Quick engagement metrics
+		const engagementRate=s.total_pilots>0?Math.round((s.contacted/s.total_pilots)*100)+'%':'—';
+		const completedCount=j.pilots.filter(p=>p.status==='completed').length;
+		const completionRate=s.total_pilots>0?Math.round((completedCount/s.total_pilots)*100)+'%':'—';
+		const avgReorders=s.contacted>0?Math.round((s.total_reorders/s.contacted)*100)/100:'0';
+		
+		html+='<div style="background:#f0f7ff;border:1px solid #cce5ff;border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:#0052cc">Engagement Metrics</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">';
+		html+='<div style="background:#fff;padding:12px;border-radius:6px;border-left:3px solid #0052cc"><div style="font-size:11px;color:var(--ink3)">Contacted</div><div style="font-size:18px;font-weight:700;color:#0052cc">'+engagementRate+'</div></div>';
+		html+='<div style="background:#fff;padding:12px;border-radius:6px;border-left:3px solid #28a745"><div style="font-size:11px;color:var(--ink3)">Completion</div><div style="font-size:18px;font-weight:700;color:#28a745">'+completionRate+'</div></div>';
+		html+='<div style="background:#fff;padding:12px;border-radius:6px;border-left:3px solid #ffc107"><div style="font-size:11px;color:var(--ink3)">Avg Reorders</div><div style="font-size:18px;font-weight:700;color:#ffc107">'+avgReorders+'</div></div>';
+		html+='</div></div>';
+		
 		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days</th><th>Reorders</th><th>Discounts</th><th>Velocity</th><th>Revenue</th><th>Action</th></tr></thead><tbody>';
 		j.pilots.forEach(function(p){
 			html+='<tr>';
@@ -862,7 +1132,7 @@ async function loadPilotResults(){
 			var revenueDisplay='$'+p.est_value;
 			if(p.total_revenue > 0){revenueDisplay='$'+p.total_revenue+' <small style="color:var(--good);font-weight:700">(real)</small>'}
 			html+='<td>'+revenueDisplay+'</td>';
-			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button></td>';
+			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button>'+(p.status!=='completed'?'<button class="sg-btn" onclick="completePilot('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\\'")+'\'')" style="font-size:10px">Complete</button>':'<span style="color:var(--good);font-weight:700">✓ Done</span>')+'</td>';
 			html+='</tr>';
 		});
 		html+='</tbody></table>';
@@ -939,6 +1209,95 @@ async function exportPilotsCsv(){
 		toast('Exported pilots','success');
 	}catch(err){toast('Export failed: '+err.message,'error')}
 }
+
+async function loadReportSubscriptions(){
+	try{
+		const res=await fetch('/api/reports/subscriptions');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const subs=data.subscriptions||[];
+		let html='';
+		
+		if(subs.length===0){
+			html='<tr><td colspan="5" style="text-align:center;color:var(--ink3)">No active subscriptions</td></tr>';
+		}else{
+			subs.forEach(s=>{
+				const nextSend=s.day_of_week!==undefined?(new Date(Date.now()+Math.random()*7*24*60*60*1000)).toLocaleDateString()):'N/A';
+				html+='<tr>';
+				html+='<td>'+escapeHtml(s.recipient_email)+'</td>';
+				html+='<td>'+s.frequency+'</td>';
+				html+='<td>'+s.report_types.join(', ')+'</td>';
+				html+='<td>'+nextSend+'</td>';
+				html+='<td><button class="sg-btn" onclick="unsubscribeFromReports(\''+s.recipient_email.replace(/'/g,"\\\'")+'\',this)" style="font-size:10px">Unsubscribe</button></td>';
+				html+='</tr>';
+			});
+		}
+		document.getElementById('subscriptionsList').innerHTML=html;
+	}catch(err){toast('Failed to load subscriptions: '+err.message,'error')}
+}
+
+async function subscribeToReports(){
+	try{
+		const email=document.getElementById('reportEmail').value;
+		const name=document.getElementById('reportName').value;
+		const frequency=document.getElementById('reportFrequency').value;
+		const day=parseInt(document.getElementById('reportDay').value);
+		
+		const reportTypes=[];
+		if(document.getElementById('reportWeeklySummary').checked)reportTypes.push('weekly_summary');
+		if(document.getElementById('reportCohortAnalysis').checked)reportTypes.push('cohort_analysis');
+		
+		if(!email||reportTypes.length===0){toast('Please enter email and select at least one report type','warn');return;}
+		
+		const res=await fetch('/api/reports/subscribe',{
+			method:'POST',
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({recipient_email:email,recipient_name:name||'Team',frequency:frequency,day_of_week:day,report_types:reportTypes,enabled:true})
+		});
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		toast('✓ Subscribed! You\'ll receive '+reportTypes.length+' report(s) every '+frequency,'success');
+		document.getElementById('reportEmail').value='';
+		document.getElementById('reportName').value='';
+		loadReportSubscriptions();
+	}catch(err){toast('Failed to subscribe: '+err.message,'error')}
+}
+
+async function unsubscribeFromReports(email,btn){
+	if(!confirm('Unsubscribe '+email+' from reports?'))return;
+	try{
+		const res=await fetch('/api/reports/unsubscribe/'+encodeURIComponent(email),{method:'DELETE'});
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		toast('Unsubscribed successfully','success');
+		loadReportSubscriptions();
+	}catch(err){toast('Failed to unsubscribe: '+err.message,'error')}
+}
+
+async function previewReport(reportType){
+	try{
+		const res=await fetch('/api/reports/preview/'+reportType);
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const modal=document.getElementById('modalOverlay');
+		let html='<h3>Report preview: '+reportType.replace('_',' ')+'</h3>';
+		html+='<p style="font-size:12px;color:var(--ink3);margin-bottom:12px">This is how your email report will look:</p>';
+		html+='<iframe style="width:100%;height:500px;border:1px solid var(--alt);border-radius:6px" srcdoc="'+escapeHtml(data.html_preview)+'"></iframe>';
+		html+='<div class="modal-btns" style="margin-top:12px"><button class="mbtn cancel" onclick="closeModal()">Close</button></div>';
+		document.getElementById('modalContent').innerHTML=html;
+		modal.classList.add('show');
+	}catch(err){toast('Failed to load preview: '+err.message,'error')}
+}
+
+// Load subscriptions when navigating to Reports page
+const originalGo=window.go;
+window.go=function(page){
+	originalGo(page);
+	if(page==='reports')setTimeout(loadReportSubscriptions,100);
+};
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 </script>

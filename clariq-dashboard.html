@@ -410,11 +410,15 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <button class="ni" data-pilot-tab="results" onclick="switchPilotTab('results')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Results & ROI</button>
 <button class="ni" data-pilot-tab="comparison" onclick="switchPilotTab('comparison')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Comparison</button>
 <button class="ni" data-pilot-tab="cohorts" onclick="switchPilotTab('cohorts')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Cohorts</button>
+<button class="ni" data-pilot-tab="roi" onclick="switchPilotTab('roi')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">ROI Analytics</button>
+<button class="ni" data-pilot-tab="roi" onclick="switchPilotTab('roi')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">ROI Analytics</button>
 </div>
 <div id="pilot-applicants-view" class="pilot-view"></div>
 <div id="pilot-results-view" class="pilot-view" style="display:none"></div>
 <div id="pilot-comparison-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-roi-view" class="pilot-view" style="display:none"></div>
 <div id="pilot-cohorts-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-roi-view" class="pilot-view" style="display:none"></div>
 </div>
 
 <!-- BILLING -->
@@ -988,6 +992,77 @@ async function loadCohortAnalysis(){
 	}catch(err){document.getElementById('pilot-cohorts-view').innerHTML='<div class="pt">Cohorts</div><div class="ps">Failed to load cohort analysis: '+err.message+'</div>'}
 }
 
+async function loadROIAnalytics(){
+	try{
+		// Load program-wide ROI comparison
+		const res=await fetch('/api/roi/comparison');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const programSummary=data.program_summary||{};
+		const aggregateMetrics=data.aggregate_metrics||{};
+		const pilots=data.pilots_ranked||[];
+		const tierDistribution=data.tier_distribution||{};
+		
+		let html='<div class="pt">ROI Analytics</div><div class="ps">Profitability analysis for pilot program. Understand which pilots drive the most value.</div>';
+		
+		// Program ROI summary cards
+		html+='<div class="money" style="margin-bottom:18px">';
+		html+='<div class="mc"><div class="ml">Overall ROI</div><div class="mv" style="color:'+(aggregateMetrics.overall_roi_percent>0?'#28a745':'#dc3545')+'">'+aggregateMetrics.overall_roi_percent+'%</div></div>';
+		html+='<div class="mc"><div class="ml">Total Revenue</div><div class="mv">$'+Math.round(aggregateMetrics.total_revenue).toLocaleString()+'</div></div>';
+		html+='<div class="mc"><div class="ml">Total Profit</div><div class="mv" style="color:'+(aggregateMetrics.total_net_profit>0?'#28a745':'#dc3545')+'">$'+Math.round(aggregateMetrics.total_net_profit).toLocaleString()+'</div></div>';
+		html+='<div class="mc"><div class="ml">Investment</div><div class="mv">$'+Math.round(aggregateMetrics.total_investment).toLocaleString()+'</div></div>';
+		html+='</div>';
+		
+		// Profitability distribution
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:var(--ink2)">Pilot Profitability Tiers</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+		const tiers=[{k:'exceptional',l:'🚀 Exceptional',c:'#28a745'},{k:'strong',l:'💪 Strong',c:'#0066cc'},{k:'positive',l:'✓ Positive',c:'#ffc107'},{k:'breakeven',l:'⏸ Break-even',c:'#6c757d'}];
+		tiers.forEach(tier=>{
+			const count=tierDistribution[tier.k]||0;
+			html+='<div style="background:#fff;padding:10px;border-radius:6px;border-left:3px solid '+tier.c+'"><div style="font-size:11px;color:var(--ink3)">'+tier.l+'</div><div style="font-size:18px;font-weight:700;color:'+tier.c+'">'+count+'</div></div>';
+		});
+		html+='</div></div>';
+		
+		// Detailed pilot ROI table
+		html+='<table class="tbl"><thead><tr><th>Rank</th><th>Pilot</th><th>Store</th><th>Revenue</th><th>Net Profit</th><th>ROI %</th><th>Status</th><th>Days</th><th>Reorders</th></tr></thead><tbody>';
+		pilots.forEach((p,idx)=>{
+			const roi=p.roi_metrics||{};
+			const metrics=p.profit_metrics||{};
+			const tierColor=p.profit_tier==='Exceptional'?'#28a745':p.profit_tier==='Strong'?'#0066cc':p.profit_tier==='Positive'?'#ffc107':'#6c757d';
+			html+='<tr>';
+			html+='<td><b>#'+p.profit_rank+'</b></td>';
+			html+='<td>'+escapeHtml(p.pilot_name)+'</td>';
+			html+='<td><small>'+escapeHtml(p.store_name)+'</small></td>';
+			html+='<td>$'+Math.round(p.total_revenue).toLocaleString()+'</td>';
+			html+='<td style="color:'+(metrics.net_profit>0?'#28a745':'#dc3545')+'"><b>$'+Math.round(metrics.net_profit)+'</b></td>';
+			html+='<td style="color:'+tierColor+'"><b>'+roi.roi_percent+'%</b></td>';
+			html+='<td><span style="padding:2px 6px;background:'+tierColor+';color:#fff;font-size:10px;border-radius:3px">'+p.profit_tier+'</span></td>';
+			html+='<td>'+p.days_active+'</td>';
+			html+='<td>'+p.action_metrics.reorder_count+'</td>';
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		
+		// ROI insights
+		if(pilots.length>0){
+			const topPilot=pilots[0];
+			const avgRoi=aggregateMetrics.avg_roi_per_pilot||0;
+			html+='<div style="margin-top:20px;padding:16px;background:var(--alt);border-radius:var(--r)">';
+			html+='<div style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--ink1)">Key Insights</div>';
+			html+='<div style="font-size:12px;color:var(--ink2);line-height:1.6">';
+			html+='• <b>Top ROI performer:</b> '+escapeHtml(topPilot.pilot_name)+' ($'+Math.round(topPilot.total_revenue)+' revenue, '+topPilot.roi_metrics.roi_percent+'% ROI)<br>';
+			html+='• <b>Program health:</b> '+programSummary.profitability_rate+'% of pilots are profitable<br>';
+			html+='• <b>Average ROI:</b> '+avgRoi+'% per pilot<br>';
+			html+='• <b>Profitability rate:</b> '+programSummary.profitability_rate+'% ('+programSummary.profitable_pilots+'/'+programSummary.total_pilots_analyzed+' pilots)<br>';
+			html+='</div></div>';
+		}
+		
+		document.getElementById('pilot-roi-view').innerHTML=html;
+	}catch(err){document.getElementById('pilot-roi-view').innerHTML='<div class="pt">ROI Analytics</div><div class="ps">Failed to load ROI analysis: '+err.message+'</div>'}
+}
+
 async function loadPilots(){
 	try{
 		const res=await fetch('/api/pilot/list');
@@ -1075,6 +1150,9 @@ function switchPilotTab(tab){
 	}else if(tab==='cohorts'){
 		document.getElementById('pilot-cohorts-view').style.display='block';
 		loadCohortAnalysis();
+	}else if(tab==='roi'){
+		document.getElementById('pilot-roi-view').style.display='block';
+		loadROIAnalytics();
 	}
 }
 
