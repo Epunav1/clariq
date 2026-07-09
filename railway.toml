@@ -1,6 +1,7 @@
 # Railway configuration
 [build]
-builder = "nixpacks"
+# Use Python builder
+builder = "nix"
 
 [deploy]
-startCommand = "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+startCommand = "cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1"
