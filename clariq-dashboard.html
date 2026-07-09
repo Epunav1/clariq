@@ -781,9 +781,26 @@ async function loadPilots(){
 		const res=await fetch('/api/pilot/list');
 		const data=await res.json();
 		const pilots=data.pilots||[];
-		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button></div><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Platform</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+		
+		// Store pilots globally for filtering
+		window.allPilots=pilots;
+		
+		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button></div>';
+		
+		// Add search and filter controls
+		html+='<div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap">';
+		html+='<input type="text" id="pilotSearch" placeholder="Search name, email, store..." style="padding:6px 8px;border:1px solid var(--alt);border-radius:4px;flex:1;min-width:200px" onkeyup="filterPilots()">';
+		html+='<select id="pilotStatusFilter" style="padding:6px 8px;border:1px solid var(--alt);border-radius:4px" onchange="filterPilots()">';
+		html+='<option value="">All statuses</option>';
+		html+='<option value="new">New</option>';
+		html+='<option value="contacted">Contacted</option>';
+		html+='<option value="completed">Completed</option>';
+		html+='</select>';
+		html+='</div>';
+		
+		html+='<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Platform</th><th>Status</th><th>Actions</th></tr></thead><tbody id="pilot-table-body">';
 		pilots.forEach(function(p){
-			html+='<tr id="pilot-'+p.id+'">';
+			html+='<tr id="pilot-'+p.id+'" class="pilot-row" data-name="'+(p.name||'').toLowerCase()+'" data-email="'+(p.email||'').toLowerCase()+'" data-store="'+(p.store_name||'').toLowerCase()+'" data-status="'+(p.status||'')+'">';
 			html+='<td><b>'+escapeHtml(p.name||'')+'</b></td>';
 			html+='<td>'+(p.email||'')+'</td>';
 			html+='<td>'+(p.store_name||'')+'</td>';
@@ -800,6 +817,24 @@ async function loadPilots(){
 		document.getElementById('pilot-applicants-view').innerHTML=html;
 		loadPilotReorderCount();
 	}catch(err){document.getElementById('pilot-applicants-view').innerHTML='<div class="pt">Pilot Applicants</div><div class="ps">Failed to load applicants: '+err.message+'</div>'}
+}
+
+function filterPilots(){
+	const searchTerm=(document.getElementById('pilotSearch')?.value||'').toLowerCase();
+	const statusFilter=document.getElementById('pilotStatusFilter')?.value||'';
+	const rows=document.querySelectorAll('.pilot-row');
+	
+	rows.forEach(row=>{
+		const name=row.dataset.name||'';
+		const email=row.dataset.email||'';
+		const store=row.dataset.store||'';
+		const status=row.dataset.status||'';
+		
+		const matchesSearch=!searchTerm || name.includes(searchTerm) || email.includes(searchTerm) || store.includes(searchTerm);
+		const matchesStatus=!statusFilter || status===statusFilter;
+		
+		row.style.display=(matchesSearch && matchesStatus)?'':'none';
+	});
 }
 
 async function loadPilotReorderCount(){
@@ -848,6 +883,21 @@ async function loadPilotResults(){
 		html+='<div><div style="font-size:11px;color:var(--ink3)">Promotions</div><div style="font-size:16px;font-weight:700;color:var(--warn)">'+s.total_promotions+'</div></div>';
 		html+='<div><div style="font-size:11px;color:var(--ink3)">Queries</div><div style="font-size:16px;font-weight:700;color:var(--ink2)">'+s.total_queries+'</div></div>';
 		html+='</div></div>';
+		
+		// Quick engagement metrics
+		const engagementRate=s.total_pilots>0?Math.round((s.contacted/s.total_pilots)*100)+'%':'—';
+		const completedCount=j.pilots.filter(p=>p.status==='completed').length;
+		const completionRate=s.total_pilots>0?Math.round((completedCount/s.total_pilots)*100)+'%':'—';
+		const avgReorders=s.contacted>0?Math.round((s.total_reorders/s.contacted)*100)/100:'0';
+		
+		html+='<div style="background:#f0f7ff;border:1px solid #cce5ff;border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:#0052cc">Engagement Metrics</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">';
+		html+='<div style="background:#fff;padding:12px;border-radius:6px;border-left:3px solid #0052cc"><div style="font-size:11px;color:var(--ink3)">Contacted</div><div style="font-size:18px;font-weight:700;color:#0052cc">'+engagementRate+'</div></div>';
+		html+='<div style="background:#fff;padding:12px;border-radius:6px;border-left:3px solid #28a745"><div style="font-size:11px;color:var(--ink3)">Completion</div><div style="font-size:18px;font-weight:700;color:#28a745">'+completionRate+'</div></div>';
+		html+='<div style="background:#fff;padding:12px;border-radius:6px;border-left:3px solid #ffc107"><div style="font-size:11px;color:var(--ink3)">Avg Reorders</div><div style="font-size:18px;font-weight:700;color:#ffc107">'+avgReorders+'</div></div>';
+		html+='</div></div>';
+		
 		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days</th><th>Reorders</th><th>Discounts</th><th>Velocity</th><th>Revenue</th><th>Action</th></tr></thead><tbody>';
 		j.pilots.forEach(function(p){
 			html+='<tr>';
