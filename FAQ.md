@@ -436,35 +436,123 @@ For 10000+ users, contact enterprise support.
 
 ## 🆘 Support & Help
 
-### Q: How do I get help?
+### Q: How do I contact support?
 **A:** Multiple channels:
 
-- **Docs**: [README.md](README.md), [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
-- **Deployment**: [PRODUCTION_LAUNCH.md](PRODUCTION_LAUNCH.md)
-- **Troubleshooting**: Each guide has troubleshooting section
-- **Email**: support@tryclariq.com
-- **GitHub Issues**: Create issue in repository
-- **Community**: Discord channel (link in README)
+**1. Feedback System** (Recommended)
+- Use the "Send Feedback" button in dashboard
+- Get automatic confirmation email
+- Owner responds within 24 hours
+- See status anytime with ticket number
+
+**2. Direct Email**
+- support@tryclariq.com
+- Response time: 24-48 hours
+
+**3. Documentation**
+- [FAQ.md](FAQ.md) - Common questions
+- [API_DOCUMENTATION.md](API_DOCUMENTATION.md) - API guide
+- [PRODUCTION_LAUNCH.md](PRODUCTION_LAUNCH.md) - Deployment help
+- Each guide has troubleshooting section
+
+**4. GitHub Issues**
+- Create issue in repository
+- For technical/bug reports
+
+---
+
+### Q: How do I report a bug?
+**A:** Use the feedback system:
+
+1. Click "Send Feedback" button
+2. Select "Bug" as feedback type
+3. Mark priority (high if blocking)
+4. Describe:
+   - What you did
+   - What happened
+   - What should happen
+5. Submit
+
+**Example bug report:**
+```
+Type: Bug
+Priority: High
+Subject: Export fails with 500 pilots
+
+I tried to export 500 pilots to Excel. 
+The file downloaded but was incomplete (only 250 rows).
+Should download all 500 rows.
+```
+
+You'll get a ticket number and confirmation email.
+Owner reviews and responds within 24 hours.
+
+---
+
+### Q: Can I request a feature?
+**A:** Yes! Use the feedback system:
+
+1. Click "Send Feedback"
+2. Select "Feature Request"
+3. Mark priority
+4. Describe:
+   - What feature you want
+   - Why you need it
+   - How it would help
+
+**Example feature request:**
+```
+Type: Feature Request
+Priority: Normal
+Subject: Bulk pilot pause feature
+
+I want to pause multiple pilots at once instead of one by one.
+Would save time when running A/B tests.
+```
+
+Features are reviewed monthly and prioritized based on demand.
+
+---
+
+### Q: What if I have a complaint?
+**A:** Take it seriously:
+
+1. Use feedback system
+2. Select "Complaint"
+3. Mark priority (use "urgent" if critical)
+4. Explain clearly:
+   - What went wrong
+   - How it affected you
+   - What resolution you want
+
+**We take complaints seriously:**
+- Immediate review (within 4 hours for urgent)
+- Direct response from owner
+- Resolution plan within 24 hours
+
+---
+
+### Q: How is feedback tracked?
+**A:** Each submission gets a ticket number:
+
+- Ticket #1, #2, #3, etc
+- Check status anytime
+- Receive email updates
+- Owner can respond via email
+
+Status flow: `open` → `responded` → `closed`
+
+You'll always know where your feedback is.
 
 ---
 
 ### Q: Is there a status page?
 **A:** Yes! Check:
 
+- **Support Status**: `/api/support/status`
+- **Feedback Stats**: `/api/feedback/stats/summary`
 - **Railway Dashboard**: Real-time service status
-- **Uptime Monitor**: status.tryclariq.com (optional)
-- **GitHub Status**: github.com/Epunav1/clariq/issues
-
----
-
-### Q: Can I request features?
-**A:** Yes! Three ways:
-
-1. **GitHub Issues**: For technical features
-2. **Email**: Feature request to support@tryclariq.com
-3. **Enterprise**: Custom features available
-
-Most requested features prioritized for next release.
+- **GitHub**: Issue tracker for known issues
 
 ---
 

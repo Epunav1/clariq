@@ -50,6 +50,7 @@ from routes.alerts import router as alerts_router
 from routes.analytics import router as analytics_router
 from routes.integrations import router as integrations_router
 from routes.billing import router as billing_router
+from routes.feedback import router as feedback_router
 from sync_scheduler import start_scheduler, stop_scheduler
 # from routes.auth import router as auth_router
 
@@ -71,6 +72,7 @@ app.include_router(alerts_router, prefix="/api/alerts")
 app.include_router(analytics_router, prefix="/api/analytics")
 app.include_router(integrations_router, prefix="/api/integrations")
 app.include_router(billing_router, prefix="/api/billing")
+app.include_router(feedback_router, prefix="/api")
 # app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 # Startup and shutdown events for background scheduler
