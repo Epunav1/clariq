@@ -770,7 +770,7 @@ async function loadPilotResults(){
 		html+='<div><div style="font-size:11px;color:var(--ink3)">Promotions</div><div style="font-size:16px;font-weight:700;color:var(--warn)">'+s.total_promotions+'</div></div>';
 		html+='<div><div style="font-size:11px;color:var(--ink3)">Queries</div><div style="font-size:16px;font-weight:700;color:var(--ink2)">'+s.total_queries+'</div></div>';
 		html+='</div></div>';
-		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days</th><th>Reorders</th><th>Discounts</th><th>Velocity</th><th>Est. value</th></tr></thead><tbody>';
+		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days</th><th>Reorders</th><th>Discounts</th><th>Velocity</th><th>Est. value</th><th>Action</th></tr></thead><tbody>';
 		j.pilots.forEach(function(p){
 			html+='<tr>';
 			html+='<td><b>'+escapeHtml(p.name)+'</b></td>';
@@ -780,6 +780,7 @@ async function loadPilotResults(){
 			html+='<td>'+(p.discount_count > 0 ? '<span style="color:var(--good);font-weight:700">'+p.discount_count+'</span>' : '—')+'</td>';
 			html+='<td>'+p.reorder_velocity+'/day</td>';
 			html+='<td>$'+p.est_value+'</td>';
+			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email results</button></td>';
 			html+='</tr>';
 		});
 		html+='</tbody></table>';
@@ -793,11 +794,17 @@ async function contactPilot(id){
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		const p=j.pilot;
+		const emailResult=j.email_result||{};
 		const statusEl=document.getElementById('pilot-status-'+id);
 		if(statusEl)statusEl.innerHTML=p.status+(p.contacted_at?(' <small style="color:var(--ink3)">' + p.contacted_at + '</small>'): '');
 		// replace action cell
 		const row=document.getElementById('pilot-'+id);
 		if(row){row.querySelector('td:last-child').innerHTML='<span style="color:var(--good);font-weight:700">Contacted</span>'}
+		// show email status
+		var msg='Pilot marked contacted';
+		if(emailResult.success){msg='✓ Email sent to '+p.email}
+		else if(emailResult.message){msg='Pilot contacted (email: '+emailResult.message+')'}
+		toast(msg,emailResult.success?'success':'warn');
 	}catch(err){toast('Failed to mark contacted: '+err.message,'error')}
 }
 
@@ -811,6 +818,19 @@ async function previewPilotEmail(id,name){
 		c.innerHTML=html;
 		document.getElementById('modalOverlay').classList.add('show');
 	}catch(err){toast('Failed to load email: '+err.message,'error')}
+}
+
+async function sendPilotResultsEmail(pilotId,pilotName,reorderCount,estValue,daysActive){
+	try{
+		const res=await fetch('/api/pilot/results-email/'+pilotId,{
+			method:'POST',
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({reorder_count:reorderCount,est_value:estValue,days_active:daysActive})
+		});
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		toast('Results email sent to '+pilotName,'success');
+	}catch(err){toast('Failed to send results: '+err.message,'error')}
 }
 
 async function exportPilotsCsv(){
