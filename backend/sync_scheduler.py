@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from db.sync_status import get_or_create_sync_job, update_sync_job, get_all_sync_jobs
+from db.shopify_sync_wrapper import sync_all_shopify_stores
 from typing import Optional
 
 # Configure logging
@@ -17,7 +18,7 @@ scheduler: Optional[BackgroundScheduler] = None
 def sync_shopify_data(store_id: str = 'all'):
     """
     Sync Shopify store data to Snowflake.
-    This would call the existing shopify_sync.py logic.
+    Calls real Shopify API via the wrapper module.
     """
     job_id = f'shopify_sync_{store_id}_{datetime.utcnow().timestamp()}'
     job = get_or_create_sync_job(job_id, 'shopify', store_id)
@@ -25,20 +26,21 @@ def sync_shopify_data(store_id: str = 'all'):
     try:
         update_sync_job(job_id, 'running', last_synced_at=datetime.utcnow().isoformat())
         
-        # TODO: Import and call existing shopify_sync.py
-        # For now, simulate sync
-        records_synced = 150
-        duration = 12.5
+        # Call the real Shopify sync
+        result = sync_all_shopify_stores()
+        
+        records_synced = result.get('total_records', 0)
+        status_detail = result.get('status_details', '')
         
         update_sync_job(
             job_id,
-            'completed',
+            'success',
             records_synced=records_synced,
-            duration_seconds=duration,
+            duration_seconds=0,
             next_sync_at=(datetime.utcnow() + timedelta(hours=1)).isoformat()
         )
-        logger.info(f'Shopify sync completed: {records_synced} records in {duration}s')
-        return {'status': 'success', 'records_synced': records_synced}
+        logger.info(f'Shopify sync completed: {records_synced} records. {status_detail}')
+        return {'status': 'success', 'records_synced': records_synced, 'detail': status_detail}
     
     except Exception as e:
         error_msg = str(e)
@@ -50,7 +52,7 @@ def sync_shopify_data(store_id: str = 'all'):
 def sync_amazon_data(store_id: str = 'all'):
     """
     Sync Amazon store data to Snowflake.
-    This would call the existing shopify_sync.py adapted for Amazon.
+    Currently a placeholder - Amazon MWS/SP-API integration to be implemented.
     """
     job_id = f'amazon_sync_{store_id}_{datetime.utcnow().timestamp()}'
     job = get_or_create_sync_job(job_id, 'amazon', store_id)
@@ -58,20 +60,26 @@ def sync_amazon_data(store_id: str = 'all'):
     try:
         update_sync_job(job_id, 'running', last_synced_at=datetime.utcnow().isoformat())
         
-        # TODO: Implement Amazon sync logic
-        # For now, simulate sync
-        records_synced = 95
-        duration = 8.3
+        # TODO: Implement Amazon Selling Partner API integration
+        # Placeholder for now - logs but doesn't actually sync
+        logger.info(f'Amazon sync job created but not yet implemented (store_id={store_id})')
         
+        records_synced = 0
         update_sync_job(
             job_id,
-            'completed',
+            'success',
             records_synced=records_synced,
-            duration_seconds=duration,
-            next_sync_at=(datetime.utcnow() + timedelta(hours=1)).isoformat()
+            duration_seconds=0,
+            next_sync_at=(datetime.utcnow() + timedelta(hours=2)).isoformat()
         )
-        logger.info(f'Amazon sync completed: {records_synced} records in {duration}s')
-        return {'status': 'success', 'records_synced': records_synced}
+        
+        return {'status': 'pending', 'message': 'Amazon sync not yet implemented', 'records_synced': 0}
+    
+    except Exception as e:
+        error_msg = str(e)
+        update_sync_job(job_id, 'failed', error_message=error_msg)
+        logger.error(f'Amazon sync failed: {error_msg}')
+        return {'status': 'failed', 'error': error_msg}
     
     except Exception as e:
         error_msg = str(e)
