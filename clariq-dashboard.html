@@ -359,9 +359,11 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div style="display:flex;gap:16px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:0">
 <button class="ni on" data-pilot-tab="applicants" onclick="switchPilotTab('applicants')" style="border:0;padding:8px 0;border-bottom:2.5px solid var(--brand);margin-bottom:-1px;flex-shrink:0">Applicants</button>
 <button class="ni" data-pilot-tab="results" onclick="switchPilotTab('results')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Results & ROI</button>
+<button class="ni" data-pilot-tab="comparison" onclick="switchPilotTab('comparison')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Comparison</button>
 </div>
 <div id="pilot-applicants-view" class="pilot-view"></div>
 <div id="pilot-results-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-comparison-view" class="pilot-view" style="display:none"></div>
 </div>
 
 <!-- BILLING -->
@@ -776,6 +778,98 @@ async function loadPilotVelocity(pilotId,pilotName){
 	}catch(err){toast('Failed to load velocity: '+err.message,'error')}
 }
 
+async function loadPilotComparison(){
+	try{
+		const res=await fetch('/api/pilot/results');
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		
+		const pilots=j.pilots||[];
+		if(pilots.length===0){document.getElementById('pilot-comparison-view').innerHTML='<div class="pt">Comparison</div><div class="ps">No pilots to compare</div>';return;}
+		
+		// Score each pilot
+		const scored=pilots.map(p=>{
+			const score={
+				id:p.id,
+				name:p.name,
+				store:p.store_name,
+				days:p.days_active||0,
+				reorders:p.reorder_count||0,
+				revenue:p.total_revenue||p.est_value||0,
+				velocity:p.reorder_velocity||0,
+				discounts:p.discount_count||0,
+				status:p.status||'new'
+			};
+			return score;
+		});
+		
+		// Calculate performance tiers
+		const maxReorders=Math.max(...scored.map(p=>p.reorders),1);
+		const maxRevenue=Math.max(...scored.map(p=>p.revenue),1);
+		const maxVelocity=Math.max(...scored.map(p=>p.velocity),0.1);
+		const avgDays=scored.reduce((sum,p)=>sum+p.days,0)/scored.length;
+		
+		scored.forEach(p=>{
+			const reorderScore=(p.reorders/maxReorders)*100;
+			const revenueScore=(p.revenue/maxRevenue)*100;
+			const velocityScore=(p.velocity/maxVelocity)*100;
+			const engagementScore=p.status==='completed'?100:p.status==='contacted'?60:0;
+			
+			p.performanceScore=Math.round((reorderScore+revenueScore+velocityScore+engagementScore)/4);
+			
+			if(p.performanceScore>=80){p.tier='top';p.tierLabel='🏆 Top'}
+			else if(p.performanceScore>=60){p.tier='growing';p.tierLabel='📈 Growing'}
+			else if(p.performanceScore>=40){p.tier='steady';p.tierLabel='⏸ Steady'}
+			else{p.tier='early';p.tierLabel='🌱 Early'}
+		});
+		
+		// Sort by performance
+		scored.sort((a,b)=>b.performanceScore-a.performanceScore);
+		
+		let html='<div class="pt">Pilot Comparison</div><div class="ps">Performance benchmarking across all pilots. Pilots are ranked by engagement, revenue, and reorder activity.</div>';
+		
+		// Summary stats
+		html+='<div class="money" style="margin-bottom:18px">';
+		const topPerformer=scored[0];
+		html+='<div class="mc"><div class="ml">Top performer</div><div class="mv">'+escapeHtml(topPerformer.name)+'</div></div>';
+		html+='<div class="mc"><div class="ml">Avg score</div><div class="mv">'+Math.round(scored.reduce((s,p)=>s+p.performanceScore,0)/scored.length)+'%</div></div>';
+		html+='<div class="mc"><div class="ml">Top tier pilots</div><div class="mv">'+scored.filter(p=>p.tier==='top').length+'</div></div>';
+		html+='<div class="mc"><div class="ml">Total pilots</div><div class="mv">'+scored.length+'</div></div>';
+		html+='</div>';
+		
+		// Tier summary
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:var(--ink2)">Tier Breakdown</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+		const tiers=[{k:'top',l:'🏆 Top'},{k:'growing',l:'📈 Growing'},{k:'steady',l:'⏸ Steady'},{k:'early',l:'🌱 Early'}];
+		tiers.forEach(t=>{
+			const count=scored.filter(p=>p.tier===t.k).length;
+			const pct=count>0?Math.round((count/scored.length)*100)+'%':'0%';
+			html+='<div style="background:#fff;padding:10px;border-radius:6px;border-left:3px solid '+(t.k==='top'?'#ffc107':t.k==='growing'?'#28a745':t.k==='steady'?'#0066cc':'#6c757d')+'"><div style="font-size:11px;color:var(--ink3)">'+t.l+'</div><div style="font-size:16px;font-weight:700">'+count+'</div><div style="font-size:10px;color:var(--ink3)">'+pct+'</div></div>';
+		});
+		html+='</div></div>';
+		
+		// Comparison table
+		html+='<table class="tbl"><thead><tr><th>Rank</th><th>Pilot</th><th>Tier</th><th>Score</th><th>Days</th><th>Reorders</th><th>Revenue</th><th>Velocity</th><th>Status</th></tr></thead><tbody>';
+		scored.forEach((p,idx)=>{
+			html+='<tr style="background:'+(idx<3?'#f0f7ff':'')+'">';
+			html+='<td style="font-weight:700;color:var(--brand)">#'+(idx+1)+'</td>';
+			html+='<td><b>'+escapeHtml(p.name)+'</b></td>';
+			html+='<td>'+p.tierLabel+'</td>';
+			html+='<td><div style="width:60px;background:var(--alt);border-radius:4px;overflow:hidden;height:20px;position:relative"><div style="background:var(--brand);height:100%;width:'+p.performanceScore+'%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff">'+p.performanceScore+'%</div></div></td>';
+			html+='<td>'+p.days+'</td>';
+			html+='<td><span style="color:'+(p.reorders>0?'var(--good)':'var(--ink3)');font-weight:700">'+p.reorders+'</span></td>';
+			html+='<td>$'+Math.round(p.revenue)+'</td>';
+			html+='<td>'+Number(p.velocity).toFixed(2)+'/day</td>';
+			html+='<td><span style="padding:2px 6px;background:'+(p.status==='completed'?'var(--good)':p.status==='contacted'?'var(--brand)':'var(--alt)')+';color:'+(p.status==='completed'?'#fff':'var(--ink2)')+';font-size:10px;border-radius:3px">'+p.status+'</span></td>';
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		
+		document.getElementById('pilot-comparison-view').innerHTML=html;
+	}catch(err){document.getElementById('pilot-comparison-view').innerHTML='<div class="pt">Comparison</div><div class="ps">Failed to load comparison: '+err.message+'</div>'}
+}
+
 async function loadPilots(){
 	try{
 		const res=await fetch('/api/pilot/list');
@@ -857,6 +951,9 @@ function switchPilotTab(tab){
 	}else if(tab==='results'){
 		document.getElementById('pilot-results-view').style.display='block';
 		loadPilotResults();
+	}else if(tab==='comparison'){
+		document.getElementById('pilot-comparison-view').style.display='block';
+		loadPilotComparison();
 	}
 }
 
@@ -912,7 +1009,7 @@ async function loadPilotResults(){
 			var revenueDisplay='$'+p.est_value;
 			if(p.total_revenue > 0){revenueDisplay='$'+p.total_revenue+' <small style="color:var(--good);font-weight:700">(real)</small>'}
 			html+='<td>'+revenueDisplay+'</td>';
-			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button>'+(p.status!=='completed'?'<button class="sg-btn" onclick="completePilot('+p.id+',\'\'+escapeHtml(p.name).replace(/\'/g,"\\\\'")+"\\'\\'')\") style="font-size:10px\">Complete</button>':'<span style="color:var(--good);font-weight:700\">✓ Done</span>')+'</td>';
+			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button>'+(p.status!=='completed'?'<button class="sg-btn" onclick="completePilot('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\\'")+'\'')" style="font-size:10px">Complete</button>':'<span style="color:var(--good);font-weight:700">✓ Done</span>')+'</td>';
 			html+='</tr>';
 		});
 		html+='</tbody></table>';
