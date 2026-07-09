@@ -1546,6 +1546,41 @@ async function previewReport(reportType){
 	}catch(err){toast('Failed to load preview: '+err.message,'error')}
 }
 
+async function viewPilotMilestones(pilotId,pilotName){
+	try{
+		const res=await fetch('/api/alerts/pilot/'+pilotId);
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const milestones=data.milestones||{};
+		const achieved=data.achieved_count||0;
+		const total=data.total_milestones||0;
+		
+		let html='<h3>'+escapeHtml(pilotName)+' - Milestones</h3>';
+		html+='<div style="margin-bottom:16px"><div style="font-size:14px;color:var(--ink2)">Progress: '+achieved+'/'+total+' milestones achieved</div>';
+		html+='<div style="width:100%;height:8px;background:var(--alt);border-radius:4px;margin-top:4px"><div style="width:'+(total>0?achieved/total*100:0)+'%;height:100%;background:var(--brand);border-radius:4px;transition:width 0.3s"></div></div></div>';
+		
+		html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-height:400px;overflow-y:auto">';
+		
+		Object.entries(milestones).forEach(([key,m])=>{
+			const color=m.achieved?'#28a745':'var(--alt)';
+			const textColor=m.achieved?'var(--ink1)':'var(--ink3)';
+			html+='<div style="background:'+color+';color:'+textColor+';padding:12px;border-radius:6px;opacity:'+(m.achieved?'1':'0.7')+'">';
+			html+='<div style="font-size:16px;margin-bottom:4px">'+m.emoji+'</div>';
+			html+='<div style="font-weight:600;font-size:13px;margin-bottom:4px">'+escapeHtml(m.title)+'</div>';
+			html+='<div style="font-size:11px;margin-bottom:6px">'+Number(m.value_current).toLocaleString())+' / '+Number(m.threshold).toLocaleString()+'</div>';
+			html+='<div style="width:100%;height:4px;background:rgba(0,0,0,0.1);border-radius:2px"><div style="width:'+m.progress_percent+'%;height:100%;background:'+(m.achieved?'#fff':'currentColor')+';border-radius:2px"></div></div>';
+			html+='</div>';
+		});
+		
+		html+='</div>';
+		html+='<div class="modal-btns" style="margin-top:16px"><button class="mbtn cancel" onclick="closeModal()">Close</button></div>';
+		
+		document.getElementById('modalContent').innerHTML=html;
+		document.getElementById('modalOverlay').classList.add('show');
+	}catch(err){toast('Failed to load milestones: '+err.message,'error')}
+}
+
 // Load subscriptions when navigating to Reports page
 const originalGo=window.go;
 window.go=function(page){

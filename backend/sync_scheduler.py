@@ -103,6 +103,29 @@ def send_scheduled_reports():
         return {'status': 'failed', 'error': str(e)}
 
 
+def check_pilot_milestones():
+    """
+    Check all pilots for milestone achievement.
+    Runs periodically to detect and alert on milestones.
+    """
+    try:
+        from db.alert_manager import alert_manager
+        from db.pilots_db import list_pilots
+        
+        pilots = list_pilots()
+        total_milestones = 0
+        
+        for pilot in pilots:
+            new_alerts = alert_manager.check_and_create_alerts(pilot['id'])
+            total_milestones += len(new_alerts)
+        
+        logger.info(f'Milestone check complete: {total_milestones} new milestones found')
+        return {'status': 'success', 'milestones_found': total_milestones}
+    except Exception as e:
+        logger.error(f'Failed to check pilot milestones: {e}')
+        return {'status': 'failed', 'error': str(e)}
+
+
 def start_scheduler():
     """Start the background scheduler with configured sync jobs."""
     global scheduler
@@ -161,6 +184,16 @@ def start_scheduler():
         replace_existing=True
     )
     logger.info('Scheduled report sending for Tuesdays at 9 AM UTC')
+    
+    # Check pilot milestones every 30 minutes
+    scheduler.add_job(
+        check_pilot_milestones,
+        trigger=CronTrigger(minute='*/30'),  # Every 30 minutes
+        id='check_milestones_job',
+        name='Check pilot milestones',
+        replace_existing=True
+    )
+    logger.info('Scheduled milestone checks every 30 minutes')
     
     scheduler.start()
     logger.info('Background scheduler started')
