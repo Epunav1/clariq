@@ -710,6 +710,72 @@ if(e.key==='Escape')closeModal();
 });
 
 /* === PILOT ADMIN PAGE === */
+async function downloadPilotPDF(pilotId,pilotName){
+	try{
+		const res=await fetch('/api/pilot/report/'+pilotId);
+		if(!res.ok)throw new Error('PDF download failed');
+		const blob=await res.blob();
+		const url=window.URL.createObjectURL(blob);
+		const a=document.createElement('a');
+		a.href=url;
+		a.download='pilot-report-'+pilotName.toLowerCase().replace(/\s+/g,'-')+'.pdf';
+		document.body.appendChild(a);
+		a.click();
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+		toast('PDF downloaded: '+pilotName,'success');
+	}catch(err){toast('Failed to download PDF: '+err.message,'error')}
+}
+
+async function loadPilotVelocity(pilotId,pilotName){
+	try{
+		const res=await fetch('/api/pilot/analytics/velocity/'+pilotId);
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||'Failed to load velocity data');
+		
+		var html='<h3>Velocity for '+escapeHtml(data.pilot.name)+'</h3>';
+		html+='<p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Reorder actions over time - shows engagement pattern</p>';
+		
+		if(data.timeline.length===0){html+='<p>No action data available</p>';}
+		else{
+			html+='<canvas id="velocityChart" width="400" height="200"></canvas>';
+		}
+		html+='<div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Close</button></div>';
+		document.getElementById('modalContent').innerHTML=html;
+		document.getElementById('modalOverlay').classList.add('show');
+		
+		if(data.timeline.length>0){
+			setTimeout(function(){
+				var ctx=document.getElementById('velocityChart').getContext('2d');
+				var dates=data.timeline.map(d=>d.date);
+				var reorders=data.timeline.map(d=>d.reorders);
+				var cumulative=data.timeline.map(d=>d.cumulative_reorders);
+				var velocity=data.timeline.map(d=>d.velocity*10);/*scale for visibility*/
+				
+				new Chart(ctx,{
+					type:'line',
+					data:{
+						labels:dates,
+						datasets:[
+							{label:'Daily Reorders',data:reorders,borderColor:'var(--brand)',backgroundColor:'rgba(66,153,225,0.1)',tension:0.3},
+							{label:'Cumulative Reorders',data:cumulative,borderColor:'var(--good)',backgroundColor:'rgba(76,175,80,0.1)',yAxisID:'y1',tension:0.3}
+						]
+					},
+					options:{
+						responsive:true,
+						interaction:{mode:'index',intersect:false},
+						scales:{
+							y:{type:'linear',display:true,position:'left',title:{display:true,text:'Daily Reorders'}},
+							y1:{type:'linear',display:true,position:'right',title:{display:true,text:'Cumulative Reorders'},grid:{drawOnChartArea:false}}
+						},
+						plugins:{legend:{display:true,position:'top'}}
+					}
+				});
+			},100);
+		}
+	}catch(err){toast('Failed to load velocity: '+err.message,'error')}
+}
+
 async function loadPilots(){
 	try{
 		const res=await fetch('/api/pilot/list');
@@ -785,7 +851,9 @@ async function loadPilotResults(){
 		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days</th><th>Reorders</th><th>Discounts</th><th>Velocity</th><th>Revenue</th><th>Action</th></tr></thead><tbody>';
 		j.pilots.forEach(function(p){
 			html+='<tr>';
-			html+='<td><b>'+escapeHtml(p.name)+'</b></td>';
+			var statusBadge='<span style="display:inline-block;padding:2px 6px;background:var(--alt);border-radius:3px;font-size:10px;font-weight:600;color:var(--ink2)">new</span>';
+			if(p.status==='contacted'){statusBadge='<span style="display:inline-block;padding:2px 6px;background:var(--good);border-radius:3px;font-size:10px;font-weight:600;color:#fff">✓ contacted</span>'}
+			html+='<td><b>'+escapeHtml(p.name)+'</b><br/>'+statusBadge+'</td>';
 			html+='<td>'+escapeHtml(p.store_name)+'</td>';
 			html+='<td>'+p.days_active+'</td>';
 			html+='<td>'+(p.reorder_count > 0 ? '<span style="color:var(--good);font-weight:700">'+p.reorder_count+'</span>' : '—')+'</td>';
@@ -794,7 +862,7 @@ async function loadPilotResults(){
 			var revenueDisplay='$'+p.est_value;
 			if(p.total_revenue > 0){revenueDisplay='$'+p.total_revenue+' <small style="color:var(--good);font-weight:700">(real)</small>'}
 			html+='<td>'+revenueDisplay+'</td>';
-			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email results</button></td>';
+			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button></td>';
 			html+='</tr>';
 		});
 		html+='</tbody></table>';
@@ -813,7 +881,7 @@ async function contactPilot(id){
 		if(statusEl)statusEl.innerHTML=p.status+(p.contacted_at?(' <small style="color:var(--ink3)">' + p.contacted_at + '</small>'): '');
 		// replace action cell
 		const row=document.getElementById('pilot-'+id);
-		if(row){row.querySelector('td:last-child').innerHTML='<span style="color:var(--good);font-weight:700">Contacted</span>'}
+			if(row){row.querySelector('td:first-child').innerHTML='<b>'+escapeHtml(p.name)+'</b><br/><span style="display:inline-block;padding:2px 6px;background:var(--good);border-radius:3px;font-size:10px;font-weight:600;color:#fff">✓ contacted</span>'}
 		// show email status
 		var msg='Pilot marked contacted';
 		if(emailResult.success){msg='✓ Email sent to '+p.email}

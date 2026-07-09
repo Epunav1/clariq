@@ -109,6 +109,19 @@ nav.n{position:relative;z-index:10;display:flex;align-items:center;justify-conte
 <div class="gradient-bg">
 <nav class="n"><div class="logo-m"><svg width="32" height="32" viewBox="0 0 32 32"><rect x="2" y="18" width="5" height="12" rx="1" fill="#635bff"/><rect x="10" y="11" width="5" height="19" rx="1" fill="#635bff"/><rect x="18" y="4" width="5" height="26" rx="1" fill="#635bff"/></svg> clariq</div><div class="nav-links"><a>Product</a><a>Pricing</a><a>About</a><a onclick="openModal('supportModal')">Support</a></div><div class="nr"><a class="btn btn-l">Sign in</a><a class="btn btn-p" onclick="openModal('signupModal')">Start free</a></div></nav>
 <section class="hero"><div class="hero-in"><h1>Ask your store anything. <span class="dim">Get the answer in plain English — wherever you sell.</span></h1><div class="ctas"><a class="btn btn-p btn-lg" onclick="openModal('signupModal')">Start free trial</a><a class="btn btn-g btn-lg" onclick="openModal('signupModal')"><span class="gi"></span> Sign up with Google</a></div></div></section>
+<!-- PILOT SIGNUP -->
+<div style="max-width:960px;margin:18px auto 0;padding:18px 24px;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;gap:12px;align-items:center">
+  <div style="flex:1">
+    <div style="font-weight:700;margin-bottom:6px">Apply for the 7‑day Pilot</div>
+    <div style="color:var(--ink3);font-size:13px">Limited spots. Get automated reorder recommendations and a dedicated onboarding call.</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <input id="pilotName" placeholder="Your name" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px" />
+    <input id="pilotEmail" placeholder="Email" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px" />
+    <input id="pilotStore" placeholder="Store name" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px" />
+    <button class="btn btn-p" onclick="submitPilot()">Apply</button>
+  </div>
+</div>
 <div class="logos-bar"><div class="marquee">
 <span>Northwind</span><span>Harbor &amp; Oak</span><span>Kinfolk</span><span>Matterhaus</span><span>Roastery</span><span>Daybreak</span><span>Fieldnote</span><span>Punsky's</span><span>Vektra</span><span>Lunaris</span><span>Kente &amp; Co</span><span>Sahara Goods</span>
 <span>Northwind</span><span>Harbor &amp; Oak</span><span>Kinfolk</span><span>Matterhaus</span><span>Roastery</span><span>Daybreak</span><span>Fieldnote</span><span>Punsky's</span><span>Vektra</span><span>Lunaris</span><span>Kente &amp; Co</span><span>Sahara Goods</span>
@@ -376,6 +389,18 @@ function handleSupport(e){e.preventDefault();const name=e.target.querySelector('
 <!-- SUPPORT MODAL -->
 <div class="modal" id="supportModal"><div class="modal-wrap"><button class="modal-close" onclick="closeModal('supportModal')">✕</button><h2>Contact Support</h2><div class="modal-sub">We'll get back to you within 2 hours.</div><div class="support-ok" id="supportOk" style="display:none">✓ Message received. We'll contact you shortly.</div><form onsubmit="handleSupport(event)"><div class="form-group"><label>Your name</label><input type="text" required></div><div class="form-group"><label>Email</label><input type="email" required></div><div class="form-group"><label>Subject</label><input type="text" required></div><div class="form-group"><label>Message</label><textarea required></textarea></div><button type="submit" class="btn btn-p" style="width:100%;">Send message</button></form></div></div>
 
+</script>
+<script>
+function submitPilot(){
+  var name=document.getElementById('pilotName').value.trim();
+  var email=document.getElementById('pilotEmail').value.trim();
+  var store=document.getElementById('pilotStore').value.trim();
+  if(!name||!email||!store){alert('Please fill name, email, and store name');return}
+  fetch('/api/pilot/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,email:email,store_name:store,platform:'Shopify',notes:'Pilot application via landing page'})})
+    .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.detail||JSON.stringify(j));return j})})
+    .then(function(j){alert('Application received — we\'ll email you soon');document.getElementById('pilotName').value='';document.getElementById('pilotEmail').value='';document.getElementById('pilotStore').value='';})
+    .catch(function(err){alert('Application failed: '+err.message)})
+}
 </script>
 </body>
 </html>

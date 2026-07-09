@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
-from routes import billing
+# from routes import billing
 
 # Load environment variables
 load_dotenv()

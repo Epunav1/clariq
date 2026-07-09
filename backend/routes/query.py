@@ -29,11 +29,28 @@ async def ask_clariq(request: QuestionRequest):
             result.get("columns", []),
             result.get("rows", [])
         )
-        
+        # Better confidence heuristic and provenance
+        if result.get("error"):
+            confidence = 0.0
+            sample_rows = []
+        else:
+            rows = result.get("rows", []) or []
+            cols = result.get("columns", []) or []
+            sample_rows = rows[:5]
+            # Heuristic: more rows and more columns -> higher confidence
+            if len(rows) >= 5 and len(cols) >= 2:
+                confidence = 0.95
+            elif len(rows) > 0:
+                confidence = 0.75
+            else:
+                confidence = 0.4
+
         return {
             "question": request.question,
             "answer": answer,
             "sql": sql,
+            "provenance": {"sql": sql, "columns": result.get("columns", []), "sample_rows": sample_rows},
+            "confidence": confidence,
             "data": result.get("rows", []),
             "columns": result.get("columns", [])
         }
@@ -57,12 +74,26 @@ async def query_data(request: QuestionRequest):
         
         # Execute the SQL
         result = run_query(sql)
-        
+        if result.get("error"):
+            raise HTTPException(status_code=500, detail=result.get("error"))
+
+        rows = result.get("rows", []) or []
+        cols = result.get("columns", []) or []
+        sample_rows = rows[:5]
+        if len(rows) >= 5 and len(cols) >= 2:
+            confidence = 0.95
+        elif len(rows) > 0:
+            confidence = 0.75
+        else:
+            confidence = 0.4
+
         return {
             "question": request.question,
             "sql": sql,
+            "provenance": {"sql": sql, "columns": cols, "sample_rows": sample_rows},
+            "confidence": confidence,
             "data": result.get("rows", []),
-            "columns": result.get("columns", [])
+            "columns": cols
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

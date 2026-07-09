@@ -99,3 +99,92 @@ async def get_pilot_results():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get('/velocity/{pilot_id}')
+async def get_pilot_velocity(pilot_id: int):
+    """Get action velocity data for a pilot over time (actions per day)."""
+    try:
+        from collections import defaultdict
+        from datetime import datetime, timedelta
+        
+        p = get_pilot(pilot_id)
+        if not p:
+            raise HTTPException(status_code=404, detail='Pilot not found')
+        
+        # Get all actions for this pilot
+        actions = get_actions(pilot_id=pilot_id)
+        
+        # Group by date and action type
+        daily_data = defaultdict(lambda: {'reorder': 0, 'discount': 0, 'promotion': 0, 'query': 0, 'total': 0})
+        
+        for action in actions:
+            try:
+                created_at = action.get('created_at')
+                if created_at:
+                    # Parse ISO format date
+                    if isinstance(created_at, str):
+                        date_str = created_at.split('T')[0]  # Extract YYYY-MM-DD
+                    else:
+                        date_str = created_at.strftime('%Y-%m-%d')
+                    
+                    action_type = action.get('action_type', 'query')
+                    daily_data[date_str][action_type] += 1
+                    daily_data[date_str]['total'] += 1
+            except:
+                continue
+        
+        # Sort by date
+        sorted_dates = sorted(daily_data.keys())
+        
+        # Calculate cumulative and daily velocity
+        timeline = []
+        cumulative_reorders = 0
+        
+        for date in sorted_dates:
+            daily = daily_data[date]
+            cumulative_reorders += daily['reorder']
+            
+            # Calculate days since contact
+            contacted_at = p.get('contacted_at')
+            if contacted_at:
+                try:
+                    contact_date = datetime.fromisoformat(contacted_at).date()
+                    current_date = datetime.fromisoformat(date).date()
+                    days_since_contact = (current_date - contact_date).days + 1
+                except:
+                    days_since_contact = 0
+            else:
+                days_since_contact = 0
+            
+            timeline.append({
+                'date': date,
+                'reorders': daily['reorder'],
+                'discounts': daily['discount'],
+                'promotions': daily['promotion'],
+                'queries': daily['query'],
+                'total_actions': daily['total'],
+                'cumulative_reorders': cumulative_reorders,
+                'days_since_contact': days_since_contact,
+                'velocity': round(cumulative_reorders / days_since_contact, 2) if days_since_contact > 0 else 0
+            })
+        
+        return {
+            "pilot": {
+                "id": p['id'],
+                "name": p['name'],
+                "store_name": p['store_name'],
+                "contacted_at": p['contacted_at']
+            },
+            "timeline": timeline,
+            "summary": {
+                "total_days": len(sorted_dates),
+                "total_actions": sum(d['total'] for d in daily_data.values()),
+                "total_reorders": sum(d['reorder'] for d in daily_data.values()),
+                "avg_daily_reorders": round(sum(d['reorder'] for d in daily_data.values()) / len(sorted_dates), 2) if sorted_dates else 0
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -5,7 +5,9 @@ from datetime import datetime
 
 router = APIRouter()
 
-connections = {}
+from db.connections_db import init_db, add_connection as db_add_connection, list_connections as db_list_connections, get_connection as db_get_connection, remove_connection as db_remove_connection, update_connection as db_update_connection
+
+init_db()
 
 
 class ConnectionRequest(BaseModel):
@@ -136,14 +138,14 @@ async def list_connection_methods():
 
 @router.get("/connections")
 async def list_connections():
-    return {"connections": list(connections.values())}
+    return {"connections": db_list_connections()}
 
 
 @router.post("/connections")
 async def add_connection(req: ConnectionRequest):
     conn_id = f"{req.platform}_{req.store_name}".lower().replace(" ", "_").replace("'", "")
 
-    if conn_id in connections:
+    if db_get_connection(conn_id):
         raise HTTPException(status_code=400, detail="This store is already connected")
 
     connection = {
@@ -151,6 +153,7 @@ async def add_connection(req: ConnectionRequest):
         "platform": req.platform,
         "store_name": req.store_name,
         "store_url": req.store_url,
+        "api_key": req.api_key,
         "connection_method": req.connection_method,
         "status": "connected",
         "connected_at": datetime.now().isoformat(),
@@ -160,41 +163,43 @@ async def add_connection(req: ConnectionRequest):
         "customers_synced": 0,
     }
 
-    connections[conn_id] = connection
+    db_add_connection(connection)
     return {"message": f"{req.store_name} connected successfully", "connection": connection}
 
 
 @router.delete("/connections/{conn_id}")
 async def remove_connection(conn_id: str):
-    if conn_id not in connections:
+    removed = db_remove_connection(conn_id)
+    if not removed:
         raise HTTPException(status_code=404, detail="Connection not found")
-    removed = connections.pop(conn_id)
     return {"message": f"{removed['store_name']} disconnected", "connection": removed}
 
 
 @router.post("/connections/{conn_id}/sync")
 async def sync_connection(conn_id: str):
-    if conn_id not in connections:
+    conn = db_get_connection(conn_id)
+    if not conn:
         raise HTTPException(status_code=404, detail="Connection not found")
 
-    conn = connections[conn_id]
-    conn["last_sync"] = datetime.now().isoformat()
-    conn["status"] = "syncing"
+    db_update_connection(conn_id, {"last_sync": datetime.now().isoformat(), "status": "syncing"})
 
-    if conn["platform"] == "shopify":
+    conn = db_get_connection(conn_id)
+
+    if conn["platform"].lower() == "shopify":
         try:
             from shopify_sync import sync_orders, sync_customers, sync_products
             sync_orders()
             sync_customers()
             sync_products()
-            conn["status"] = "connected"
-            conn["last_sync"] = datetime.now().isoformat()
+            db_update_connection(conn_id, {"status": "connected", "last_sync": datetime.now().isoformat()})
+            conn = db_get_connection(conn_id)
             return {"message": "Shopify sync complete", "connection": conn}
         except Exception as e:
-            conn["status"] = "error"
+            db_update_connection(conn_id, {"status": "error"})
+            conn = db_get_connection(conn_id)
             return {"message": f"Sync failed: {str(e)}", "connection": conn}
-
-    conn["status"] = "connected"
+    db_update_connection(conn_id, {"status": "connected"})
+    conn = db_get_connection(conn_id)
     return {"message": f"Sync complete for {conn['store_name']}", "connection": conn}
 
 
