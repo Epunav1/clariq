@@ -178,12 +178,68 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 .sec-label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
 
 @media(max-width:900px){.side{display:none}.main{margin-left:0}.money{grid-template-columns:repeat(2,1fr)}.prods,.btm{grid-template-columns:1fr}}
+
+/* Dark Mode */
+:root.dark-mode{--bg:#1a1a1a;--ink1:#f5f5f5;--ink2:#d0d0d0;--ink3:#999;--alt:#2a2a2a;--line:#333;--bsoft:#262626}
+:root.dark-mode .card,:root.dark-mode .btn,:root.dark-mode .inp{background:#2a2a2a;border-color:#333;color:#f5f5f5}
+:root.dark-mode .modal{background:#252525}
+
+/* Bulk Actions */
+.bulk-action-bar{display:none;position:sticky;bottom:0;background:var(--brand);color:white;padding:12px 20px;border-top:1px solid var(--line);align-items:center;justify-content:space-between;gap:16px}
+.bulk-action-bar.show{display:flex}
+.bulk-count{font-size:14px;font-weight:600}
+.bulk-buttons{display:flex;gap:8px}
+.bulk-buttons button{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.4);padding:8px 16px;border-radius:4px;cursor:pointer;font-size:13px}
+.bulk-buttons button:hover{background:rgba(255,255,255,0.3)}
+.checkbox-col input{cursor:pointer}
+
+/* Advanced Filter */
+.filter-panel{background:var(--alt);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.filter-group{display:flex;flex-direction:column;gap:6px}
+.filter-group label{font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase}
+.filter-group select,.filter-group input{padding:8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink1);font-size:13px}
+.filter-actions{display:flex;gap:8px}
+.filter-actions button{padding:8px 16px;border-radius:4px;font-size:13px;border:none;cursor:pointer}
+.filter-apply{background:var(--brand);color:white}
+.filter-reset{background:var(--alt);color:var(--ink2);border:1px solid var(--line)}
+
+/* Mobile Optimizations */
+@media(max-width:768px){
+	.side{display:none;position:fixed;left:0;top:60px;width:100%;height:calc(100%-60px);background:var(--bg);z-index:999;overflow-y:auto}
+	.side.mobile-show{display:flex;flex-direction:column}
+	.main{margin-left:0;padding:12px}
+	.ni{padding:12px;border-bottom:1px solid var(--line)}
+	.header{flex-direction:column;gap:8px}
+	.search{width:100%}
+	.money{grid-template-columns:1fr}
+	.modal{max-width:90vw;max-height:80vh}
+	.card{padding:12px}
+	.btn{padding:8px 12px;font-size:13px}
+	.table-container{overflow-x:auto}
+	table{font-size:12px}
+	.filter-panel{grid-template-columns:1fr}
+}
+
+@media(max-width:600px){
+	.logo{font-size:16px}
+	.btm{grid-template-columns:1fr}
+	.card{padding:8px}
+	.money{gap:8px}
+}
 </style>
 </head>
 <body>
 
 <div class="toast" id="toast"><span class="t-icon"></span><span class="t-msg"></span><span class="t-close" onclick="hideToast()">&times;</span></div>
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()"><div class="modal" id="modalContent"></div></div>
+<div class="bulk-action-bar" id="bulkActionBar">
+	<span class="bulk-count" id="bulkCount">0 selected</span>
+	<div class="bulk-buttons">
+		<button onclick="bulkAction('export')">📥 Export</button>
+		<button onclick="bulkAction('email')">✉️ Email</button>
+		<button onclick="deselectAllRows()">Clear</button>
+	</div>
+</div>
 
 <aside class="side">
 <div class="s-head">
@@ -205,6 +261,8 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="ni" data-page="performance" onclick="go('performance')">Performance</div>
 <div class="ni" data-page="billing" onclick="go('billing')">Billing</div>
 <div class="ni" data-page="settings" onclick="go('settings')">Settings</div>
+<div class="ni" onclick="toggleDarkMode()">🌙 Dark Mode</div>
+<div class="ni" onclick="showFilterPanel()">🔍 Filters</div>
 </div>
 <div class="s-foot">
 <div class="s-conn"><div class="cl">Connected</div><div class="cr"><span class="cd"></span> Shopify</div><div class="cr"><span class="cd"></span> Amazon</div><div class="cr"><span class="cd"></span> TikTok</div></div>
@@ -1701,6 +1759,202 @@ if(document.readyState==='loading'){
 		if(p==='sync'){loadSyncStatus()}
 	};
 }
+
+// ===== DARK MODE =====
+function toggleDarkMode(){
+	const root=document.documentElement;
+	const isDark=root.classList.toggle('dark-mode');
+	localStorage.setItem('darkMode',isDark?'true':'false');
+	
+	const btn=document.querySelector('[onclick*="toggleDarkMode"]');
+	if(btn) btn.textContent=isDark?'☀️ Light Mode':'🌙 Dark Mode';
+}
+
+// Load dark mode preference
+if(localStorage.getItem('darkMode')==='true'){
+	document.documentElement.classList.add('dark-mode');
+}
+
+// ===== BULK ACTIONS =====
+let selectedRows=new Set();
+
+function toggleRowCheckbox(e,rowId){
+	e.stopPropagation();
+	if(selectedRows.has(rowId)){
+		selectedRows.delete(rowId);
+	}else{
+		selectedRows.add(rowId);
+	}
+	updateBulkActionBar();
+}
+
+function selectAllRows(){
+	const checkboxes=document.querySelectorAll('.row-checkbox:not(:disabled)');
+	selectedRows.clear();
+	checkboxes.forEach(cb=>{
+		selectedRows.add(cb.dataset.rowId);
+		cb.checked=true;
+	});
+	updateBulkActionBar();
+}
+
+function deselectAllRows(){
+	const checkboxes=document.querySelectorAll('.row-checkbox');
+	checkboxes.forEach(cb=>cb.checked=false);
+	selectedRows.clear();
+	updateBulkActionBar();
+}
+
+function updateBulkActionBar(){
+	const bar=document.getElementById('bulkActionBar');
+	const count=selectedRows.size;
+	
+	if(count>0){
+		document.getElementById('bulkCount').textContent=count+' selected';
+		bar.classList.add('show');
+	}else{
+		bar.classList.remove('show');
+	}
+}
+
+async function bulkAction(action){
+	if(selectedRows.size===0){
+		toast('No rows selected','warning');
+		return;
+	}
+	
+	const confirmed=confirm('Apply '+action+' to '+selectedRows.size+' pilots?');
+	if(!confirmed) return;
+	
+	const ids=Array.from(selectedRows);
+	
+	try{
+		for(const id of ids){
+			if(action==='export'){
+				// Trigger individual export
+				window.exportPilot?.(id);
+			}else if(action==='email'){
+				// Send emails
+				await fetch('/api/alerts/send-all');
+			}
+		}
+		deselectAllRows();
+		toast(action.charAt(0).toUpperCase()+action.slice(1)+' completed for '+ids.length+' pilots');
+	}catch(err){
+		toast('Bulk action failed: '+err.message,'error');
+	}
+}
+
+// ===== ADVANCED FILTERS =====
+const filters={status:null,minRevenue:null,maxROI:null,searchText:''};
+
+function showFilterPanel(){
+	const existing=document.getElementById('filterPanel');
+	if(existing){existing.remove();return}
+	
+	const panel=document.createElement('div');
+	panel.id='filterPanel';
+	panel.className='filter-panel';
+	panel.innerHTML=`
+		<div class="filter-group">
+			<label>Status</label>
+			<select id="filterStatus" onchange="updateFilters()">
+				<option value="">All</option>
+				<option value="new">New</option>
+				<option value="contacted">Contacted</option>
+				<option value="completed">Completed</option>
+			</select>
+		</div>
+		<div class="filter-group">
+			<label>Min Revenue</label>
+			<input type="number" id="filterMinRev" placeholder="0" onchange="updateFilters()">
+		</div>
+		<div class="filter-group">
+			<label>Max ROI %</label>
+			<input type="number" id="filterMaxROI" placeholder="100" onchange="updateFilters()">
+		</div>
+		<div class="filter-group">
+			<label>Search</label>
+			<input type="text" id="filterSearch" placeholder="Pilot name..." onchange="updateFilters()" oninput="updateFilters()">
+		</div>
+		<div class="filter-actions">
+			<button class="filter-apply" onclick="applyFilters()">Apply</button>
+			<button class="filter-reset" onclick="resetFilters()">Reset</button>
+		</div>
+	`;
+	
+	const table=document.querySelector('.table-container')||document.querySelector('table');
+	if(table) table.parentElement.insertBefore(panel,table);
+}
+
+function updateFilters(){
+	filters.status=document.getElementById('filterStatus')?.value||null;
+	filters.minRevenue=parseFloat(document.getElementById('filterMinRev')?.value||0);
+	filters.maxROI=parseFloat(document.getElementById('filterMaxROI')?.value||100);
+	filters.searchText=document.getElementById('filterSearch')?.value||'';
+}
+
+function applyFilters(){
+	updateFilters();
+	filterTableRows();
+	toast('Filters applied');
+}
+
+function resetFilters(){
+	filters.status=null;
+	filters.minRevenue=null;
+	filters.maxROI=null;
+	filters.searchText='';
+	
+	document.getElementById('filterStatus').value='';
+	document.getElementById('filterMinRev').value='';
+	document.getElementById('filterMaxROI').value='';
+	document.getElementById('filterSearch').value='';
+	
+	filterTableRows();
+	toast('Filters reset');
+}
+
+function filterTableRows(){
+	const rows=document.querySelectorAll('tbody tr');
+	let visibleCount=0;
+	
+	rows.forEach(row=>{
+		const status=row.getAttribute('data-status');
+		const revenue=parseFloat(row.getAttribute('data-revenue')||0);
+		const roi=parseFloat(row.getAttribute('data-roi')||0);
+		const name=row.getAttribute('data-name')||'';
+		
+		let show=true;
+		
+		if(filters.status && status!==filters.status) show=false;
+		if(filters.minRevenue && revenue<filters.minRevenue) show=false;
+		if(filters.maxROI && roi>filters.maxROI) show=false;
+		if(filters.searchText && !name.toLowerCase().includes(filters.searchText.toLowerCase())) show=false;
+		
+		row.style.display=show?'':'none';
+		if(show) visibleCount++;
+	});
+	
+	// Update row count
+	const countSpan=document.querySelector('.row-count');
+	if(countSpan) countSpan.textContent=visibleCount+' pilots';
+}
+
+// ===== MOBILE MENU =====
+function toggleMobileMenu(){
+	const side=document.querySelector('.side');
+	if(side) side.classList.toggle('mobile-show');
+}
+
+// Close mobile menu when navigation item clicked
+document.addEventListener('click',function(e){
+	if(e.target.classList.contains('ni')){
+		const side=document.querySelector('.side');
+		if(side) side.classList.remove('mobile-show');
+	}
+});
+
 </script>
 </body>
 </html>
