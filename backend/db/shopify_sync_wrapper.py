@@ -4,11 +4,16 @@ Wraps and extends the existing shopify_sync.py logic.
 """
 
 import requests
-import snowflake.connector
 import os
 import logging
 from datetime import datetime
 from typing import Dict, List, Tuple
+
+try:
+    import snowflake.connector
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
