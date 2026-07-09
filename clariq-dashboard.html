@@ -360,10 +360,12 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <button class="ni on" data-pilot-tab="applicants" onclick="switchPilotTab('applicants')" style="border:0;padding:8px 0;border-bottom:2.5px solid var(--brand);margin-bottom:-1px;flex-shrink:0">Applicants</button>
 <button class="ni" data-pilot-tab="results" onclick="switchPilotTab('results')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Results & ROI</button>
 <button class="ni" data-pilot-tab="comparison" onclick="switchPilotTab('comparison')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Comparison</button>
+<button class="ni" data-pilot-tab="cohorts" onclick="switchPilotTab('cohorts')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Cohorts</button>
 </div>
 <div id="pilot-applicants-view" class="pilot-view"></div>
 <div id="pilot-results-view" class="pilot-view" style="display:none"></div>
 <div id="pilot-comparison-view" class="pilot-view" style="display:none"></div>
+<div id="pilot-cohorts-view" class="pilot-view" style="display:none"></div>
 </div>
 
 <!-- BILLING -->
@@ -870,6 +872,73 @@ async function loadPilotComparison(){
 	}catch(err){document.getElementById('pilot-comparison-view').innerHTML='<div class="pt">Comparison</div><div class="ps">Failed to load comparison: '+err.message+'</div>'}
 }
 
+async function loadCohortAnalysis(){
+	try{
+		const res=await fetch('/api/pilot/analytics/cohorts');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const cohorts=data.cohorts||[];
+		const summary=data.summary||{};
+		
+		if(cohorts.length===0){document.getElementById('pilot-cohorts-view').innerHTML='<div class="pt">Cohorts</div><div class="ps">No cohort data available</div>';return;}
+		
+		let html='<div class="pt">Cohort Analysis</div><div class="ps">Track pilot program performance by signup cohort. Identify which weeks perform best.</div>';
+		
+		// Summary cards
+		html+='<div class="money" style="margin-bottom:18px">';
+		html+='<div class="mc"><div class="ml">Total cohorts</div><div class="mv">'+summary.total_cohorts+'</div></div>';
+		html+='<div class="mc"><div class="ml">Avg engagement</div><div class="mv">'+summary.avg_engagement_rate+'%</div></div>';
+		html+='<div class="mc"><div class="ml">Strong cohorts</div><div class="mv">'+summary.strong_cohorts+'</div></div>';
+		html+='<div class="mc"><div class="ml">Best cohort</div><div class="mv">'+summary.best_performing_cohort+'</div></div>';
+		html+='</div>';
+		
+		// Cohort health breakdown
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:12px;color:var(--ink2)">Cohort Health Distribution</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+		const healthTiers=[{k:'strong',l:'💪 Strong'},{k:'healthy',l:'✓ Healthy'},{k:'emerging',l:'🌱 Emerging'},{k:'early',l:'⏳ Early'}];
+		healthTiers.forEach(tier=>{
+			const count=cohorts.filter(c=>c.health===tier.k).length;
+			html+='<div style="background:#fff;padding:10px;border-radius:6px;border-left:3px solid '+(tier.k==='strong'?'#28a745':tier.k==='healthy'?'#0066cc':tier.k==='emerging'?'#ffc107':'#6c757d')+'"><div style="font-size:11px;color:var(--ink3)">'+tier.l+'</div><div style="font-size:16px;font-weight:700">'+count+'</div></div>';
+		});
+		html+='</div></div>';
+		
+		// Cohort comparison table
+		html+='<table class="tbl"><thead><tr><th>Cohort</th><th>Size</th><th>Engagement</th><th>Completion</th><th>Avg Reorders</th><th>Total Revenue</th><th>Health</th></tr></thead><tbody>';
+		cohorts.forEach(c=>{
+			html+='<tr>';
+			html+='<td><b>'+escapeHtml(c.label)+'</b></td>';
+			html+='<td>'+c.size+'</td>';
+			html+='<td><div style="width:60px;background:var(--alt);border-radius:4px;overflow:hidden;height:18px"><div style="background:var(--brand);height:100%;width:'+c.engagement_rate+'%;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600">'+c.engagement_rate+'%</div></div></td>';
+			html+='<td>'+c.completion_rate+'%</td>';
+			html+='<td>'+Number(c.avg_reorders).toFixed(2)+'</td>';
+			html+='<td>$'+Math.round(c.total_revenue)+'</td>';
+			html+='<td><span style="padding:2px 6px;background:'+(c.health==='strong'?'#28a745':c.health==='healthy'?'#0066cc':c.health==='emerging'?'#ffc107':'#6c757d')+';color:#fff;font-size:10px;border-radius:3px">'+c.health_label+'</span></td>';
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		
+		// Top pilots per cohort
+		html+='<div style="margin-top:20px;padding:16px;background:var(--alt);border-radius:var(--r)">';
+		html+='<div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--ink1)">Top Performers by Cohort</div>';
+		cohorts.slice(0,3).forEach(c=>{
+			const topPilots=c.pilots.sort((a,b)=>b.reorders-a.reorders).slice(0,2);
+			if(topPilots.length>0){
+				html+='<div style="margin-bottom:12px">';
+				html+='<div style="font-size:12px;font-weight:600;color:var(--ink2)">'+escapeHtml(c.label)+'</div>';
+				topPilots.forEach(p=>{
+					html+='<div style="font-size:11px;color:var(--ink3);margin-left:8px">• '+escapeHtml(p.name)+' - '+p.reorders+' reorders</div>';
+				});
+				html+='</div>';
+			}
+		});
+		html+='</div>';
+		
+		document.getElementById('pilot-cohorts-view').innerHTML=html;
+	}catch(err){document.getElementById('pilot-cohorts-view').innerHTML='<div class="pt">Cohorts</div><div class="ps">Failed to load cohort analysis: '+err.message+'</div>'}
+}
+
 async function loadPilots(){
 	try{
 		const res=await fetch('/api/pilot/list');
@@ -954,6 +1023,9 @@ function switchPilotTab(tab){
 	}else if(tab==='comparison'){
 		document.getElementById('pilot-comparison-view').style.display='block';
 		loadPilotComparison();
+	}else if(tab==='cohorts'){
+		document.getElementById('pilot-cohorts-view').style.display='block';
+		loadCohortAnalysis();
 	}
 }
 

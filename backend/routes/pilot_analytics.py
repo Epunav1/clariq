@@ -188,3 +188,131 @@ async def get_pilot_velocity(pilot_id: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get('/cohorts')
+async def get_cohort_analysis():
+    """Analyze pilot performance by cohort (grouped by signup week)."""
+    try:
+        from datetime import datetime, timedelta
+        from collections import defaultdict
+        
+        pilots = list_pilots()
+        
+        # Group pilots by signup week
+        cohorts = defaultdict(list)
+        
+        for p in pilots:
+            created_at_str = p.get('created_at')
+            if created_at_str:
+                try:
+                    created_date = datetime.fromisoformat(created_at_str)
+                    # Get the Monday of the week
+                    week_start = created_date - timedelta(days=created_date.weekday())
+                    cohort_key = week_start.strftime('%Y-W%U')  # Format: 2024-W01
+                    cohort_label = week_start.strftime('%b %d, %Y')  # Format: Jan 01, 2024
+                    cohorts[cohort_key].append({
+                        'key': cohort_key,
+                        'label': cohort_label,
+                        'pilot': p
+                    })
+                except:
+                    continue
+        
+        # Analyze each cohort
+        cohort_results = []
+        
+        for cohort_key in sorted(cohorts.keys()):
+            cohort_pilots = [c['pilot'] for c in cohorts[cohort_key]]
+            cohort_label = cohorts[cohort_key][0]['label'] if cohorts[cohort_key] else cohort_key
+            
+            # Calculate metrics for this cohort
+            total_pilots = len(cohort_pilots)
+            contacted = sum(1 for p in cohort_pilots if p['status'] == 'contacted')
+            completed = sum(1 for p in cohort_pilots if p['status'] == 'completed')
+            
+            total_reorders = 0
+            total_discounts = 0
+            total_promotions = 0
+            total_queries = 0
+            total_revenue = 0
+            
+            for p in cohort_pilots:
+                pilot_id = p['id']
+                total_reorders += count_actions(action_type='reorder', pilot_id=pilot_id)
+                total_discounts += count_actions(action_type='discount', pilot_id=pilot_id)
+                total_promotions += count_actions(action_type='promotion', pilot_id=pilot_id)
+                total_queries += count_actions(action_type='query', pilot_id=pilot_id)
+                
+                revenue_data = calculate_pilot_revenue(pilot_id)
+                total_revenue += revenue_data.get('total_revenue', 0)
+            
+            # Calculate rates
+            engagement_rate = round((contacted / total_pilots * 100), 1) if total_pilots > 0 else 0
+            completion_rate = round((completed / total_pilots * 100), 1) if total_pilots > 0 else 0
+            avg_reorders = round(total_reorders / total_pilots, 2) if total_pilots > 0 else 0
+            avg_revenue = round(total_revenue / total_pilots, 2) if total_pilots > 0 else 0
+            
+            # Assign cohort health tier
+            if engagement_rate >= 70 and avg_reorders >= 1:
+                health = 'strong'
+                health_label = '💪 Strong'
+            elif engagement_rate >= 50 and avg_reorders >= 0.5:
+                health = 'healthy'
+                health_label = '✓ Healthy'
+            elif engagement_rate >= 30:
+                health = 'emerging'
+                health_label = '🌱 Emerging'
+            else:
+                health = 'early'
+                health_label = '⏳ Early'
+            
+            cohort_results.append({
+                'cohort': cohort_key,
+                'label': cohort_label,
+                'size': total_pilots,
+                'contacted': contacted,
+                'completed': completed,
+                'engagement_rate': engagement_rate,
+                'completion_rate': completion_rate,
+                'avg_reorders': avg_reorders,
+                'total_reorders': total_reorders,
+                'total_discounts': total_discounts,
+                'total_promotions': total_promotions,
+                'total_queries': total_queries,
+                'total_revenue': round(total_revenue, 2),
+                'avg_revenue': avg_revenue,
+                'health': health,
+                'health_label': health_label,
+                'pilots': [
+                    {
+                        'id': p['id'],
+                        'name': p['name'],
+                        'store_name': p['store_name'],
+                        'status': p['status'],
+                        'reorders': count_actions(action_type='reorder', pilot_id=p['id'])
+                    }
+                    for p in cohort_pilots
+                ]
+            })
+        
+        # Calculate aggregate stats
+        all_cohorts = cohort_results
+        avg_engagement = round(sum(c['engagement_rate'] for c in all_cohorts) / len(all_cohorts), 1) if all_cohorts else 0
+        avg_completion = round(sum(c['completion_rate'] for c in all_cohorts) / len(all_cohorts), 1) if all_cohorts else 0
+        best_cohort = max(all_cohorts, key=lambda c: c['engagement_rate']) if all_cohorts else None
+        
+        return {
+            "cohorts": all_cohorts,
+            "summary": {
+                "total_cohorts": len(all_cohorts),
+                "avg_engagement_rate": avg_engagement,
+                "avg_completion_rate": avg_completion,
+                "best_performing_cohort": best_cohort['label'] if best_cohort else None,
+                "strong_cohorts": len([c for c in all_cohorts if c['health'] == 'strong']),
+                "healthy_cohorts": len([c for c in all_cohorts if c['health'] == 'healthy'])
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
