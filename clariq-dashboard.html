@@ -202,6 +202,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="ns">Account</div>
 <div class="ni" data-page="connections" onclick="go('connections')">Connections</div>
 <div class="ni" data-page="sync" onclick="go('sync')">Data sync</div>
+<div class="ni" data-page="performance" onclick="go('performance')">Performance</div>
 <div class="ni" data-page="billing" onclick="go('billing')">Billing</div>
 <div class="ni" data-page="settings" onclick="go('settings')">Settings</div>
 </div>
@@ -440,6 +441,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 </div>
 
 <!-- SETTINGS -->
+<div class="page" id="pg-performance"><div class="pt">System Performance</div><div class="ps">Monitor API performance, database health, sync status, and system resources.</div><div id="performance-content" style="margin-top:16px"></div></div>
 <div class="page" id="pg-settings">
 <div class="pt">Settings</div><div class="ps">Manage your account, team, and preferences.</div>
 <div class="sg"><div class="sg-h">Profile</div>
@@ -472,6 +474,7 @@ document.title='clariq — '+p.charAt(0).toUpperCase()+p.slice(1);
 window.scrollTo(0,0);
 if(p==='home'&&!window.chartDone)mkChart();
 if(p==='pilot')switchPilotTab('applicants');
+if(p==='performance')loadPerformanceDashboard();
 }
 
 /* === TOAST with optional undo === */
@@ -1061,6 +1064,119 @@ async function loadROIAnalytics(){
 		
 		document.getElementById('pilot-roi-view').innerHTML=html;
 	}catch(err){document.getElementById('pilot-roi-view').innerHTML='<div class="pt">ROI Analytics</div><div class="ps">Failed to load ROI analysis: '+err.message+'</div>'}
+}
+
+async function loadPerformanceDashboard(){
+	try{
+		const res=await fetch('/api/performance/health');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const api=data.api_performance||{};
+		const system=data.system_metrics||{};
+		const db=data.database_health||{};
+		const sync=data.sync_status||{};
+		const status=data.overall_status||'unknown';
+		
+		let html='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">';
+		
+		// Status badges
+		const statusColors={'healthy':'#28a745','warning':'#ffc107','critical':'#dc3545','unknown':'#6c757d'};
+		const statusLabels={'healthy':'✓ Healthy','warning':'⚠ Warning','critical':'🚨 Critical','unknown':'? Unknown'};
+		
+		html+='<div style="background:'+statusColors[status]+';color:#fff;padding:16px;border-radius:var(--r);text-align:center">';
+		html+='<div style="font-size:12px;opacity:0.9">Overall Status</div>';
+		html+='<div style="font-size:18px;font-weight:700;margin-top:4px">'+statusLabels[status]+'</div>';
+		html+='</div>';
+		
+		html+='<div style="background:'+statusColors[api.status||'unknown']+';color:#fff;padding:16px;border-radius:var(--r);text-align:center">';
+		html+='<div style="font-size:12px;opacity:0.9">API Performance</div>';
+		html+='<div style="font-size:14px;font-weight:700;margin-top:4px">'+api.error_rate_percent+'% errors</div>';
+		html+='<div style="font-size:11px;opacity:0.8;margin-top:2px">'+api.avg_response_time_ms+'ms avg</div>';
+		html+='</div>';
+		
+		html+='<div style="background:'+statusColors[system.status||'unknown']+';color:#fff;padding:16px;border-radius:var(--r);text-align:center">';
+		html+='<div style="font-size:12px;opacity:0.9">System Resources</div>';
+		html+='<div style="font-size:14px;font-weight:700;margin-top:4px">'+system.avg_cpu_percent+'% CPU</div>';
+		html+='<div style="font-size:11px;opacity:0.8;margin-top:2px">'+system.avg_memory_percent+'% Memory</div>';
+		html+='</div>';
+		
+		html+='<div style="background:'+statusColors[db.database||'unknown']+';color:#fff;padding:16px;border-radius:var(--r);text-align:center">';
+		html+='<div style="font-size:12px;opacity:0.9">Database Health</div>';
+		html+='<div style="font-size:14px;font-weight:700;margin-top:4px">'+db.pilots_count+'</div>';
+		html+='<div style="font-size:11px;opacity:0.8;margin-top:2px">pilots in system</div>';
+		html+='</div>';
+		
+		html+='</div>';
+		
+		// Detailed metrics
+		html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+		
+		// API metrics details
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:16px">';
+		html+='<div style="font-size:13px;font-weight:600;margin-bottom:12px">API Performance (Last 24h)</div>';
+		html+='<div style="font-size:12px;color:var(--ink2);line-height:1.8">';
+		html+='Total Requests: <b>'+api.total_requests+'</b><br>';
+		html+='Avg Response: <b>'+api.avg_response_time_ms+'ms</b><br>';
+		html+='P95 Response: <b>'+api.p95_response_time_ms+'ms</b><br>';
+		html+='Error Rate: <b>'+api.error_rate_percent+'%</b><br>';
+		html+='Endpoints: <b>'+Object.keys(api.endpoints||{}).length+'</b>';
+		html+='</div>';
+		html+='</div>';
+		
+		// System metrics details
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:16px">';
+		html+='<div style="font-size:13px;font-weight:600;margin-bottom:12px">System Metrics (Last 24h)</div>';
+		html+='<div style="font-size:12px;color:var(--ink2);line-height:1.8">';
+		html+='Avg CPU: <b>'+system.avg_cpu_percent+'%</b> (max '+system.max_cpu_percent+'%)<br>';
+		html+='Avg Memory: <b>'+system.avg_memory_percent+'%</b> (max '+system.max_memory_percent+'%)<br>';
+		html+='Disk Usage: <b>'+system.avg_disk_percent+'%</b><br>';
+		html+='Status: <b>'+system.status+'</b><br>';
+		html+='</div>';
+		html+='</div>';
+		
+		// Database details
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:16px">';
+		html+='<div style="font-size:13px;font-weight:600;margin-bottom:12px">Database Status</div>';
+		html+='<div style="font-size:12px;color:var(--ink2);line-height:1.8">';
+		html+='Status: <b>'+db.database+'</b><br>';
+		html+='Total Pilots: <b>'+db.pilots_count+'</b><br>';
+		html+='Completed: <b>'+db.pilots_completed+'</b><br>';
+		html+='Actions Logged: <b>'+db.actions_count+'</b><br>';
+		html+='Connections: <b>'+db.connections+'</b><br>';
+		html+='</div>';
+		html+='</div>';
+		
+		// Sync status
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:16px">';
+		html+='<div style="font-size:13px;font-weight:600;margin-bottom:12px">Sync Status</div>';
+		html+='<div style="font-size:12px;color:var(--ink2);line-height:1.8">';
+		html+='Status: <b>'+sync.status+'</b><br>';
+		html+='Success Rate: <b>'+sync.success_rate_percent+'%</b><br>';
+		html+='Recent Jobs: <b>'+sync.total_jobs+'</b><br>';
+		html+='Successful: <b>'+sync.successful+'</b><br>';
+		html+='Failed: <b>'+sync.failed+'</b><br>';
+		html+='Last Sync: <b>'+((sync.last_sync||'N/A').substring(0,10))+'</b>';
+		html+='</div>';
+		html+='</div>';
+		
+		html+='</div>';
+		
+		// Top API endpoints
+		const topEndpoints=Object.entries(api.endpoints||{}).sort((a,b)=>b[1].calls-a[1].calls).slice(0,5);
+		if(topEndpoints.length>0){
+			html+='<div style="margin-top:20px;background:var(--alt);border-radius:var(--r);padding:16px">';
+			html+='<div style="font-size:13px;font-weight:600;margin-bottom:12px">Top API Endpoints</div>';
+			html+='<table class="tbl"><thead><tr><th>Endpoint</th><th>Calls</th><th>Avg Time</th><th>Error %</th></tr></thead><tbody>';
+			topEndpoints.forEach(([ep,m])=>{
+				html+='<tr><td><small>'+escapeHtml(ep)+'</small></td><td>'+m.calls+'</td><td>'+m.avg_response_time_ms+'ms</td><td>'+m.error_rate_percent+'%</td></tr>';
+			});
+			html+='</tbody></table>';
+			html+='</div>';
+		}
+		
+		document.getElementById('performance-content').innerHTML=html;
+	}catch(err){document.getElementById('performance-content').innerHTML='<div class="ps" style="color:#dc3545">Failed to load performance metrics: '+err.message+'</div>'}
 }
 
 async function loadPilots(){
