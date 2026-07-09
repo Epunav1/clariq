@@ -124,6 +124,34 @@ open http://localhost
 
 ---
 
+## 🚀 Production Deployment
+
+Ready to launch CLARIQ at tryclariq.com? Follow these guides:
+
+### **Quick Start (1 hour)**
+👉 **[PRODUCTION_LAUNCH.md](PRODUCTION_LAUNCH.md)** - Step-by-step playbook for going live
+
+### **Platform Guides**
+- **[RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)** - Deploy to Railway.app (easiest, 10 min)
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - All platforms (Docker, AWS, DigitalOcean, Heroku, Kubernetes)
+
+### **Domain & SSL Setup**
+- **[DNS_SETUP.md](DNS_SETUP.md)** - Configure DNS records and SSL certificates
+- **[DOMAIN_CHECKLIST.md](DOMAIN_CHECKLIST.md)** - Production readiness verification
+
+### **Key Steps**
+1. ✅ Run local tests: `pytest -v backend/tests/test_api.py`
+2. ✅ Connect GitHub to Railway
+3. ✅ Configure environment variables
+4. ✅ Setup custom domain (tryclariq.com)
+5. ✅ Configure integrations (Stripe, Slack, Google Sheets)
+6. ✅ Verify all endpoints working
+7. ✅ Enable monitoring & backups
+
+**Total time: ~1 hour from code to live at https://tryclariq.com**
+
+---
+
 ## 🏗️ Architecture
 
 ```

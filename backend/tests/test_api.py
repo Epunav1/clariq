@@ -16,7 +16,7 @@ import sqlite3
 @pytest.fixture
 def client():
     """FastAPI test client"""
-    from backend.main import app
+    from main import app
     return TestClient(app)
 
 
