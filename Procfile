@@ -1,1 +1,1 @@
-web: cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+web: gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:${PORT:-8000} backend.main:app
