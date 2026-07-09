@@ -1072,7 +1072,7 @@ async function loadPilots(){
 		// Store pilots globally for filtering
 		window.allPilots=pilots;
 		
-		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button></div>';
+		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><div style="display:flex;gap:8px"><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button><button class="sg-btn" onclick="openAdvancedExport()">Advanced Export</button></div></div>';
 		
 		// Add search and filter controls
 		html+='<div style="margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap">';
@@ -1283,6 +1283,68 @@ async function exportPilotsCsv(){
 		a.href=url;a.download='clariq-pilots-'+new Date().toISOString().split('T')[0]+'.csv';
 		document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 		toast('Exported pilots','success');
+	}catch(err){toast('Export failed: '+err.message,'error')}
+}
+
+async function openAdvancedExport(){
+	try{
+		// Load available columns
+		const res=await fetch('/api/export/columns/pilots');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const columns=data.columns||{};
+		const colList=Object.entries(columns).map(([k,v])=>({key:k,label:v.label,type:v.type}));
+		
+		let html='<h3>Export Pilots Data</h3>';
+		html+='<div style="margin-bottom:16px">';
+		html+='<div style="font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px">Select columns to export:</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:300px;overflow-y:auto;border:1px solid var(--line);padding:12px;border-radius:6px;margin-bottom:12px">';
+		colList.forEach(col=>{
+			html+='<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px"><input type="checkbox" class="export-col-checkbox" value="'+col.key+'" '+(col.key==='name'||col.key==='email'||col.key==='store_name'?'checked':'')+' data-label="'+escapeHtml(col.label)+'"> '+escapeHtml(col.label)+'</label>';
+		});
+		html+='</div>';
+		html+='<div style="display:flex;gap:8px;margin-bottom:12px">';
+		html+='<button class="sg-btn" style="flex:1" onclick="selectAllExportColumns()">Select All</button>';
+		html+='<button class="sg-btn" style="flex:1" onclick="clearAllExportColumns()">Clear All</button>';
+		html+='</div>';
+		html+='<div style="display:flex;gap:8px;margin-bottom:12px">';
+		html+='<label style="display:flex;align-items:center;gap:6px"><input type="radio" name="export-format" value="csv" checked> CSV (Excel compatible)</label>';
+		html+='<label style="display:flex;align-items:center;gap:6px"><input type="radio" name="export-format" value="excel"> Excel (.xlsx)</label>';
+		html+='</div>';
+		html+='<div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Cancel</button><button class="mbtn primary" onclick="performAdvancedExport()">Export</button></div>';
+		
+		document.getElementById('modalContent').innerHTML=html;
+		document.getElementById('modalOverlay').classList.add('show');
+	}catch(err){toast('Failed to open export dialog: '+err.message,'error')}
+}
+
+function selectAllExportColumns(){
+	document.querySelectorAll('.export-col-checkbox').forEach(cb=>cb.checked=true);
+}
+
+function clearAllExportColumns(){
+	document.querySelectorAll('.export-col-checkbox').forEach(cb=>cb.checked=false);
+}
+
+async function performAdvancedExport(){
+	try{
+		const columns=Array.from(document.querySelectorAll('.export-col-checkbox:checked')).map(cb=>cb.value);
+		const format=document.querySelector('input[name="export-format"]:checked').value;
+		
+		if(columns.length===0){toast('Please select at least one column','warn');return;}
+		
+		// Build export URL
+		let url='/api/export/pilots/'+format+'?columns='+encodeURIComponent(columns.join(','));
+		
+		// Download
+		const a=document.createElement('a');
+		a.href=url;
+		a.download='clariq-pilots-'+format+'-'+new Date().toISOString().split('T')[0]+'.'+(format==='excel'?'xlsx':'csv');
+		document.body.appendChild(a);a.click();document.body.removeChild(a);
+		
+		toast('Export started - '+columns.length+' columns',  'success');
+		closeModal();
 	}catch(err){toast('Export failed: '+err.message,'error')}
 }
 
