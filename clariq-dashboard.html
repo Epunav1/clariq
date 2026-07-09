@@ -198,6 +198,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="ni" data-page="products" onclick="go('products')">Products</div>
 <div class="ni" data-page="customers" onclick="go('customers')">Customers</div>
 <div class="ni" data-page="reports" onclick="go('reports')">Reports</div>
+<div class="ni" data-page="pilot" onclick="go('pilot')">Pilot applicants</div>
 <div class="ns">Account</div>
 <div class="ni" data-page="connections" onclick="go('connections')">Connections</div>
 <div class="ni" data-page="billing" onclick="go('billing')">Billing</div>
@@ -213,6 +214,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="topbar">
 <div class="ask-bar"><span class="pr">&rsaquo;</span><input placeholder="Ask clariq anything..." id="globalAsk" onkeydown="if(event.key==='Enter'){go('ask');setTimeout(function(){document.getElementById('askInput').value=document.getElementById('globalAsk').value;document.getElementById('globalAsk').value='';sendMsg()},150)}"/><span class="kbd">&#8984;K</span></div>
 <button class="tb-btn" onclick="toast('Report exported as PDF','success')">Export</button>
+<button class="tb-btn" onclick="fetchReorder()">Reorder</button>
 <div class="av" onclick="go('settings')">V</div>
 </div>
 
@@ -351,6 +353,16 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="dashed-add" onclick="showModal('customStore')"><div style="font-size:28px;color:var(--brand);margin-bottom:6px">+</div><div style="font-size:13px;font-weight:600;margin-bottom:4px">Add custom store</div><div style="font-size:11px;color:var(--ink3)">Local business, custom website, or unlisted platform</div></div>
 </div>
 
+<!-- PILOT -->
+<div class="page" id="pg-pilot">
+<div style="display:flex;gap:16px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:0">
+<button class="ni on" data-pilot-tab="applicants" onclick="switchPilotTab('applicants')" style="border:0;padding:8px 0;border-bottom:2.5px solid var(--brand);margin-bottom:-1px;flex-shrink:0">Applicants</button>
+<button class="ni" data-pilot-tab="results" onclick="switchPilotTab('results')" style="border:0;padding:8px 0;border-bottom:2.5px solid transparent;margin-bottom:-1px;color:var(--ink2);flex-shrink:0">Results & ROI</button>
+</div>
+<div id="pilot-applicants-view" class="pilot-view"></div>
+<div id="pilot-results-view" class="pilot-view" style="display:none"></div>
+</div>
+
 <!-- BILLING -->
 <div class="page" id="pg-billing">
 <div class="pt">Billing</div><div class="ps">Your plan, usage, and payment history.</div>
@@ -392,6 +404,7 @@ if(n)n.classList.add('on');
 document.title='clariq — '+p.charAt(0).toUpperCase()+p.slice(1);
 window.scrollTo(0,0);
 if(p==='home'&&!window.chartDone)mkChart();
+if(p==='pilot')switchPilotTab('applicants');
 }
 
 /* === TOAST with optional undo === */
@@ -530,7 +543,7 @@ if(type==='metric'){var m={revenue:{t:'Revenue breakdown',v:'$48,210',d:[['Shopi
 else if(type==='product'){h='<h3>'+a[0]+'</h3><div class="msub">'+a[1]+'</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px"><div><div style="font-size:10px;color:var(--ink3)">Revenue</div><div style="font-weight:700;font-size:18px">'+a[2]+'</div></div><div><div style="font-size:10px;color:var(--ink3)">Units sold</div><div style="font-weight:700;font-size:18px">'+a[3]+'</div></div><div><div style="font-size:10px;color:var(--ink3)">In stock</div><div style="font-weight:700;font-size:18px">'+a[4]+'</div></div></div><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Close</button><button class="mbtn primary" onclick="closeModal();toast(\'Reorder placed for '+a[0]+'\',\'success\')">Reorder</button></div>'}
 else if(type==='customer'){h='<h3>'+a[0]+'</h3><div class="msub">'+a[1]+'</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px"><div><div style="font-size:10px;color:var(--ink3)">Orders</div><div style="font-weight:700;font-size:18px">'+a[2]+'</div></div><div><div style="font-size:10px;color:var(--ink3)">Lifetime value</div><div style="font-weight:700;font-size:18px">'+a[3]+'</div></div><div><div style="font-size:10px;color:var(--ink3)">Platform</div><div style="font-weight:700;font-size:18px">'+a[4]+'</div></div></div><div style="font-size:12px;color:var(--ink3);margin-bottom:16px">Last order: '+a[5]+'</div><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Close</button><button class="mbtn primary" onclick="closeModal();toast(\'Email sent to '+a[0]+'\',\'success\')">Send email</button></div>'}
 else if(type==='report'){h='<h3>'+a[0]+'</h3><div class="msub">Report details</div><p style="font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.6">Analyzes performance data across all connected platforms and generates a PDF summary with key metrics, trends, and recommendations.</p><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Close</button><button class="mbtn primary" onclick="closeModal();toast(\'Running report...\',\'success\')">Run now</button></div>'}
-else if(type==='connect'){h='<h3>Connect '+a[0]+'</h3><div class="msub">Link your '+a[0]+' store to clariq</div><label>Store URL or ID</label><input placeholder="Enter your '+a[0]+' store URL..."/><label>API key (if required)</label><input placeholder="Paste your API key..."/><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Cancel</button><button class="mbtn primary" onclick="closeModal();toast(\''+a[0]+' connected!\',\'success\')">Connect</button></div>'}
+else if(type==='connect'){h='<h3>Connect '+a[0]+'</h3><div class="msub">Link your '+a[0]+' store to clariq</div><label>Store name</label><input id="storeNameInput" placeholder="My Store (e.g. Punsky\'s Boutique)"/><label>Store URL or ID</label><input id="storeUrlInput" placeholder="Enter your '+a[0]+' store URL..."/><label>API key (if required)</label><input id="apiKeyInput" placeholder="Paste your API key..."/><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Cancel</button><button class="mbtn primary" onclick="connectStore(\''+a[0]+'\')">Connect</button></div>'}
 else if(type==='customStore'){h='<h3>Add custom store</h3><div class="msub">Connect any store or platform to clariq</div><label>Store name</label><input placeholder="e.g. My Local Shop"/><label>Platform type</label><select><option>Custom website</option><option>Local business (no website)</option><option>CSV / Excel upload</option><option>API integration</option><option>Other</option></select><label>Website URL (optional)</label><input placeholder="https://mystore.com"/><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Cancel</button><button class="mbtn primary" onclick="closeModal();toast(\'Store added!\',\'success\')">Connect store</button></div>'}
 else if(type==='manage'){h='<h3>Manage '+a[0]+'</h3><div class="msub">'+a[1]+'</div><div style="display:flex;flex-direction:column;gap:0;margin-bottom:16px"><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px"><span style="color:var(--ink3)">Status</span><span style="color:var(--good);font-weight:600">Live</span></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px"><span style="color:var(--ink3)">Last sync</span><span>2 min ago</span></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px"><span style="color:var(--ink3)">Products</span><span>47</span></div><div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13px"><span style="color:var(--ink3)">Orders</span><span>1,284</span></div></div><div class="modal-btns"><button class="mbtn danger" onclick="if(confirm(\'Disconnect '+a[0]+'? You can reconnect later.\')){closeModal();toast(\''+a[0]+' disconnected\')}">Disconnect</button><button class="mbtn primary" onclick="closeModal();toast(\'Syncing '+a[0]+'...\',\'success\')">Sync now</button></div>'}
 else if(type==='upgrade'){h='<h3>Upgrade to Enterprise</h3><div class="msub">$249/month &middot; everything in Pro plus:</div><ul style="font-size:13px;color:var(--ink2);margin:0 0 16px 16px;line-height:2"><li>Unlimited stores and platforms</li><li>Dedicated account manager</li><li>Custom integrations</li><li>Phone and chat support</li><li>Team access (up to 10 seats)</li></ul><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Maybe later</button><button class="mbtn primary" onclick="closeModal();toast(\'Upgraded to Enterprise!\',\'success\')">Upgrade now &mdash; $249/mo</button></div>'}
@@ -569,6 +582,69 @@ msgs.scrollTop=msgs.scrollHeight;
 },1000);
 }
 
+/* === REORDER RECOMMENDATIONS === */
+async function fetchReorder(){
+	var overlay=document.getElementById('modalOverlay');
+	var content=document.getElementById('modalContent');
+	content.innerHTML='<h3>Loading recommendations...</h3>';
+	overlay.classList.add('show');
+	try{
+		var res=await fetch('/api/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+		var json=await res.json();
+		if(!res.ok){content.innerHTML='<h3>Error</h3><div>'+ (json.detail||JSON.stringify(json)) +'</div>';return}
+		var recs=json.recommendations||[];
+		var html='<h3>Reorder recommendations — '+recs.length+' items</h3><div class="msub">Store: '+(json.store||'default')+'</div><div style="max-height:60vh;overflow:auto">';
+		html+='<table class="tbl"><thead><tr><th>Product</th><th>Inventory</th><th>Avg/day</th><th>Days left</th><th>Action</th></tr></thead><tbody>';
+		recs.forEach(function(r){
+			html+='<tr>'+
+				'<td>'+ (r.title||r.product_id) +'</td>'+
+				'<td>'+ (r.inventory==null?'-':r.inventory) +'</td>'+
+				'<td>'+(r.avg_daily_sales?Number(r.avg_daily_sales).toFixed(2):'-')+'</td>'+
+				'<td>'+(r.days_to_stockout?Number(r.days_to_stockout).toFixed(1):'—')+'</td>'+
+				'<td><button class="ib u" onclick="placeReorder(\''+ (r.product_id || '') +'\',\''+ (r.title||'').replace(/'/g,"\\'") +'\')">Place reorder</button></td>'+
+			'</tr>';
+		});
+		html+='</tbody></table></div><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Close</button></div>';
+		content.innerHTML=html;
+	}catch(err){content.innerHTML='<h3>Error</h3><div>'+err.message+'</div>'}
+}
+
+async function placeReorder(productId,title){
+	try{
+		const res=await fetch('/api/actions/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action_type:'reorder',product_id:productId,metadata:title})});
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		closeModal();
+		toast('Reorder placed for '+title,'success');
+	}catch(err){
+		closeModal();
+		toast('Reorder failed: '+err.message,'error');
+	}
+}
+
+/* === CONNECT STORE (onboarding quick connect) === */
+async function connectStore(platform){
+	var name=document.getElementById('storeNameInput')?document.getElementById('storeNameInput').value.trim():'';
+	var url=document.getElementById('storeUrlInput')?document.getElementById('storeUrlInput').value.trim():'';
+	var api=document.getElementById('apiKeyInput')?document.getElementById('apiKeyInput').value.trim():'';
+	if(!name){toast('Please enter a store name','error');return}
+	try{
+		var body={platform:platform.toLowerCase(),store_name:name,store_url:url,api_key:api,connection_method:'api'};
+		var res=await fetch('/api/connections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+		var json=await res.json();
+		if(!res.ok){throw new Error(json.detail||JSON.stringify(json))}
+		// add to connections table
+		var tb=document.querySelector('#pg-connections table tbody');
+		if(tb){
+			var tr=document.createElement('tr');
+			tr.innerHTML='<td><b>'+platform+'</b></td><td>'+name+'</td><td><span class="status live">Live</span></td><td>just now</td><td><button class="sg-btn" onclick="showModal(\'manage\',\''+platform+'\',\''+name.replace(/'/g,"\\'")+'\')">Manage</button></td>';
+			tb.insertBefore(tr,tb.firstChild);
+		}
+		closeModal();
+		toast(json.message || (platform+' connected!'),'success');
+	}catch(err){toast('Connect failed: '+err.message,'error')}
+}
+
 /* === STORE SWITCHER === */
 function switchTo(store){
 closeModal();
@@ -594,6 +670,150 @@ document.addEventListener('keydown',function(e){
 if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();document.getElementById('globalAsk').focus()}
 if(e.key==='Escape')closeModal();
 });
+
+/* === PILOT ADMIN PAGE === */
+async function loadPilots(){
+	try{
+		const res=await fetch('/api/pilot/list');
+		const data=await res.json();
+		const pilots=data.pilots||[];
+		let html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div class="pt">Pilot Applicants</div><div class="ps">Applicants for the 7-day pilot. Manage outreach and track contact status.</div></div><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="exportPilotsCsv()">Export CSV</button></div><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Store</th><th>Platform</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+		pilots.forEach(function(p){
+			html+='<tr id="pilot-'+p.id+'">';
+			html+='<td><b>'+escapeHtml(p.name||'')+'</b></td>';
+			html+='<td>'+(p.email||'')+'</td>';
+			html+='<td>'+(p.store_name||'')+'</td>';
+			html+='<td>'+(p.platform||'')+'</td>';
+			html+='<td id="pilot-status-'+p.id+'">'+(p.status||'')+(p.contacted_at?(' <small style="color:var(--ink3)">' + p.contacted_at + '</small>'):'')+'</td>';
+			if(p.status==='contacted'){
+				html+='<td><span style="color:var(--good);font-weight:700">Contacted</span></td>';
+			}else{
+				html+='<td><button class="sg-btn" onclick="previewPilotEmail('+p.id+',\''+escapeHtml(p.name||'').replace(/'/g,"\\'")+'\')">Email</button><button class="sg-btn" onclick="contactPilot('+p.id+')" style="margin-left:6px">Mark</button></td>';
+			}
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		document.getElementById('pilot-applicants-view').innerHTML=html;
+		loadPilotReorderCount();
+	}catch(err){document.getElementById('pilot-applicants-view').innerHTML='<div class="pt">Pilot Applicants</div><div class="ps">Failed to load applicants: '+err.message+'</div>'}
+}
+
+async function loadPilotReorderCount(){
+	try{
+		const res=await fetch('/api/actions/count/reorder');
+		const j=await res.json();
+	}catch(err){}
+}
+
+function switchPilotTab(tab){
+	document.querySelectorAll('[data-pilot-tab]').forEach(function(b){b.classList.remove('on');b.style.borderBottomColor='transparent';b.style.color='var(--ink2)'});
+	document.querySelector('[data-pilot-tab="'+tab+'"]').classList.add('on');
+	document.querySelector('[data-pilot-tab="'+tab+'"]').style.borderBottomColor='var(--brand)';
+	document.querySelector('[data-pilot-tab="'+tab+'"]').style.color='var(--brand)';
+	
+	document.querySelectorAll('.pilot-view').forEach(function(v){v.style.display='none'});
+	if(tab==='applicants'){
+		document.getElementById('pilot-applicants-view').style.display='block';
+		loadPilots();
+	}else if(tab==='results'){
+		document.getElementById('pilot-results-view').style.display='block';
+		loadPilotResults();
+	}
+}
+
+async function loadPilotResults(){
+	try{
+		const res=await fetch('/api/pilot/results');
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		const s=j.summary;
+		let html='<div class="pt">Pilot Results &amp; ROI</div><div class="ps">Performance metrics across all pilot applicants.</div>';
+		html+='<div class="money" style="margin-bottom:18px">';
+		html+='<div class="mc"><div class="ml">Total applicants</div><div class="mv">'+s.total_pilots+'</div></div>';
+		html+='<div class="mc"><div class="ml">Contacted</div><div class="mv">'+s.contacted+'</div></div>';
+		html+='<div class="mc"><div class="ml">Total reorders</div><div class="mv">'+s.total_reorders+'</div></div>';
+		html+='<div class="mc"><div class="ml">Est. value</div><div class="mv">$'+s.est_total_value+'</div></div>';
+		html+='</div>';
+		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days active</th><th>Reorders</th><th>Velocity</th><th>Est. value</th></tr></thead><tbody>';
+		j.pilots.forEach(function(p){
+			html+='<tr>';
+			html+='<td><b>'+escapeHtml(p.name)+'</b></td>';
+			html+='<td>'+escapeHtml(p.store_name)+'</td>';
+			html+='<td>'+p.days_active+'</td>';
+			html+='<td>'+(p.reorder_count > 0 ? '<span style="color:var(--good);font-weight:700">'+p.reorder_count+'</span>' : '—')+'</td>';
+			html+='<td>'+p.reorder_velocity+'/day</td>';
+			html+='<td>$'+p.est_value+'</td>';
+			html+='</tr>';
+		});
+		html+='</tbody></table>';
+		document.getElementById('pilot-results-view').innerHTML=html;
+	}catch(err){document.getElementById('pilot-results-view').innerHTML='<div class="pt">Results</div><div class="ps">Failed to load results: '+err.message+'</div>'}
+}
+
+async function contactPilot(id){
+	try{
+		const res=await fetch('/api/pilot/contact/'+id,{method:'POST'});
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		const p=j.pilot;
+		const statusEl=document.getElementById('pilot-status-'+id);
+		if(statusEl)statusEl.innerHTML=p.status+(p.contacted_at?(' <small style="color:var(--ink3)">' + p.contacted_at + '</small>'): '');
+		// replace action cell
+		const row=document.getElementById('pilot-'+id);
+		if(row){row.querySelector('td:last-child').innerHTML='<span style="color:var(--good);font-weight:700">Contacted</span>'}
+	}catch(err){toast('Failed to mark contacted: '+err.message,'error')}
+}
+
+async function previewPilotEmail(id,name){
+	try{
+		const res=await fetch('/api/pilot/email/'+id);
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		var c=document.getElementById('modalContent');
+		var html='<h3>Outreach email</h3><div class="msub">To: '+escapeHtml(j.pilot.email||'')+'</div><pre style="white-space:pre-wrap;background:#f7f8fb;padding:12px;border-radius:6px;margin:12px 0;max-height:40vh;overflow:auto;font-size:12px;line-height:1.5">'+escapeHtml(j.email_preview)+'</pre><div style="font-size:11px;color:var(--ink3);margin-bottom:12px">You can copy this and paste into your email client, or click "Mark contacted" to log the outreach.</div><div class="modal-btns"><button class="mbtn cancel" onclick="closeModal()">Close</button><button class="mbtn primary" onclick="contactPilot('+id+');closeModal();toast(\'Marked as contacted\',\'success\')">Mark contacted</button></div>';
+		c.innerHTML=html;
+		document.getElementById('modalOverlay').classList.add('show');
+	}catch(err){toast('Failed to load email: '+err.message,'error')}
+}
+
+async function exportPilotsCsv(){
+	try{
+		const res=await fetch('/api/pilot/export');
+		const txt=await res.text();
+		if(!res.ok)throw new Error(txt);
+		const blob=new Blob([txt],{type:'text/csv'});
+		const url=URL.createObjectURL(blob);
+		const a=document.createElement('a');
+		a.href=url;a.download='clariq-pilots-'+new Date().toISOString().split('T')[0]+'.csv';
+		document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+		toast('Exported pilots','success');
+	}catch(err){toast('Export failed: '+err.message,'error')}
+}
+
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+</script>
+
+<!-- PILOT EMAIL PREVIEW MODAL -->
+<div class="modal" id="pilotEmailModal"><div class="modal-wrap"><button class="modal-close" onclick="closeModal('pilotEmailModal')">✕</button><h2>Outreach email</h2><div class="modal-sub">Preview the outreach email below. You can copy it to your mail client or mark the applicant as contacted.</div><pre id="pilotEmailBody" style="white-space:pre-wrap;background:#f7f8fb;padding:12px;border-radius:6px;margin-top:12px;max-height:40vh;overflow:auto"></pre><div style="margin-top:12px;display:flex;gap:8px"><button class="mbtn cancel" onclick="closeModal('pilotEmailModal')">Close</button><button class="mbtn primary" id="pilotMarkContacted">Mark contacted</button></div></div></div>
+
+<script>
+async function generateEmail(pilotId){
+	try{
+		const res=await fetch('/api/pilot/email/'+pilotId);
+		const j=await res.json();
+		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
+		document.getElementById('pilotEmailBody').textContent = j.email_preview || '';
+		document.getElementById('pilotMarkContacted').onclick = async function(){
+			await contactPilot(pilotId);
+			closeModal('pilotEmailModal');
+			toast('Marked contacted','success');
+		};
+		// show modal
+		document.getElementById('modalContent').innerHTML='';
+		document.getElementById('modalOverlay').classList.add('show');
+		document.getElementById('pilotEmailModal').classList.add('open');
+	}catch(err){toast('Failed to load email: '+err.message,'error')}
+}
 </script>
 </body>
 </html>

@@ -36,12 +36,20 @@ app.add_middleware(
 from routes.query import router as query_router
 from routes.connections import router as connections_router
 from routes.upload import router as upload_router
+from routes.recommendations import router as recommend_router
+from routes.pilot import router as pilot_router
+from routes.pilot_analytics import router as pilot_analytics_router
+from routes.actions import router as actions_router
 # from routes.auth import router as auth_router
 
 # Mount routers
 app.include_router(query_router, prefix="/api")
 app.include_router(connections_router, prefix="/api")
 app.include_router(upload_router, prefix="/api")
+app.include_router(recommend_router, prefix="/api")
+app.include_router(pilot_router, prefix="/api/pilot")
+app.include_router(pilot_analytics_router, prefix="/api/pilot")
+app.include_router(actions_router, prefix="/api/actions")
 # app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 # Health check endpoint
