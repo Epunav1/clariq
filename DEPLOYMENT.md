@@ -6,9 +6,29 @@ This guide covers production deployment to various cloud platforms.
 
 - Docker & Docker Compose installed
 - Git repository access
-- Domain name configured with DNS
+- Domain name (tryclariq.com) configured with DNS
 - SSL certificates (Let's Encrypt recommended)
 - Cloud account (AWS/Railway/DigitalOcean/etc)
+
+---
+
+## 🌐 Domain Setup (CRITICAL FIRST STEP)
+
+**BEFORE deploying, configure your domain!**
+
+See [DNS_SETUP.md](DNS_SETUP.md) for complete instructions:
+
+1. **Update DNS records** to point to your infrastructure
+2. **Setup SSL/TLS certificate** (automated via Let's Encrypt)
+3. **Verify domain resolution** before deployment
+4. **Update .env.production** with correct domain URLs
+
+```bash
+# Expected DNS records after setup:
+# tryclariq.com      A      your.public.ip
+# www.tryclariq.com  CNAME  tryclariq.com
+# api.tryclariq.com  CNAME  tryclariq.com
+```
 
 ---
 
@@ -40,11 +60,14 @@ docker-compose up -d
 docker-compose ps
 docker-compose logs -f backend
 
-# Test API
+# Test API (locally)
 curl https://localhost/api/health
 
-# Access dashboard
-open https://localhost
+# Access dashboard (from configured domain)
+open https://tryclariq.com
+
+# Verify API endpoint
+curl https://api.tryclariq.com/api/health
 ```
 
 ---

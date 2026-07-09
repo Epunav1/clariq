@@ -41,6 +41,9 @@ python -m uvicorn main:app --reload
 
 # 6. Open dashboard
 open http://localhost:8000
+
+# 7. Production: Configure tryclariq.com
+# See DEPLOYMENT.md and DNS_SETUP.md for production domain setup
 ```
 
 ### Docker Setup (3 minutes)
