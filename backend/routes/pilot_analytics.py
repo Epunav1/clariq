@@ -9,15 +9,27 @@ router = APIRouter()
 
 @router.get('/results')
 async def get_pilot_results():
-    """Get detailed pilot performance metrics."""
+    """Get detailed pilot performance metrics with all action types."""
     try:
         pilots = list_pilots()
+        
+        # track action types for summary
+        action_types = ['reorder', 'discount', 'promotion', 'query']
+        type_counts = {t: 0 for t in action_types}
         
         # enrich each pilot with action counts and time metrics
         results = []
         for p in pilots:
             pilot_id = p['id']
-            reorder_count = count_actions(action_type='reorder', pilot_id=pilot_id)
+            
+            # count all action types for this pilot
+            pilot_actions = {}
+            for action_type in action_types:
+                count = count_actions(action_type=action_type, pilot_id=pilot_id)
+                pilot_actions[action_type] = count
+                type_counts[action_type] += count
+            
+            reorder_count = pilot_actions.get('reorder', 0)
             
             # calc days active
             days_active = 0
@@ -44,6 +56,10 @@ async def get_pilot_results():
                 "created_at": p['created_at'],
                 "days_active": days_active,
                 "reorder_count": reorder_count,
+                "discount_count": pilot_actions.get('discount', 0),
+                "promotion_count": pilot_actions.get('promotion', 0),
+                "query_count": pilot_actions.get('query', 0),
+                "total_actions": sum(pilot_actions.values()),
                 "reorder_velocity": velocity,  # reorders per day
                 "est_value": reorder_count * 5,  # rough estimate: $5 per reorder action
             })
@@ -51,6 +67,7 @@ async def get_pilot_results():
         # aggregate stats
         total_pilots = len(results)
         contacted = sum(1 for r in results if r['status'] == 'contacted')
+        total_actions = sum(r['total_actions'] for r in results)
         total_reorders = sum(r['reorder_count'] for r in results)
         avg_reorders = round(total_reorders / total_pilots, 2) if total_pilots > 0 else 0
         total_est_value = sum(r['est_value'] for r in results)
@@ -61,7 +78,11 @@ async def get_pilot_results():
                 "total_pilots": total_pilots,
                 "contacted": contacted,
                 "pending": total_pilots - contacted,
+                "total_actions": total_actions,
                 "total_reorders": total_reorders,
+                "total_discounts": type_counts['discount'],
+                "total_promotions": type_counts['promotion'],
+                "total_queries": type_counts['query'],
                 "avg_reorders_per_pilot": avg_reorders,
                 "est_total_value": total_est_value,
             }

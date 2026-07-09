@@ -478,14 +478,34 @@ hi.appendChild(d);
 }
 }
 
-/* === ACTION BUTTONS with undo === */
+/* === ACTION BUTTONS with API logging === */
 function doAction(btn,msg){
 if(btn.disabled)return;
 btn.disabled=true;
 var orig=btn.textContent;
 var origClass=btn.className;
 btn.textContent='...';
-setTimeout(function(){
+
+var actionType='action';
+if(btn.classList.contains('re')){actionType='reorder'}
+else if(btn.classList.contains('di')){
+if(msg.includes('20%')||msg.includes('off')){actionType='discount'}
+else if(msg.includes('promo')){actionType='promotion'}
+else{actionType='discount'}
+}
+
+var productName=(msg.match(/for (.+?)$/)||['',''])[1]||msg;
+var metadata={message:msg,timestamp:new Date().toISOString()};
+
+fetch('/api/actions/log',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+action_type:actionType,
+product_id:productName.toLowerCase().replace(/\s+/g,'-'),
+metadata:JSON.stringify(metadata)
+})
+}).then(r=>r.json()).then(j=>{
 btn.textContent='Done';
 btn.classList.add('done');
 toastUndo(msg,function(){},function(){
@@ -493,7 +513,15 @@ btn.textContent=orig;
 btn.className=origClass;
 btn.disabled=false;
 });
-},300);
+}).catch(err=>{
+btn.textContent='Error';
+btn.style.background='var(--bad)';
+setTimeout(function(){
+btn.textContent=orig;
+btn.className=origClass;
+btn.disabled=false;
+},2000);
+});
 }
 
 /* === REPORTS === */
@@ -727,20 +755,29 @@ async function loadPilotResults(){
 		const j=await res.json();
 		if(!res.ok)throw new Error(j.detail||JSON.stringify(j));
 		const s=j.summary;
-		let html='<div class="pt">Pilot Results &amp; ROI</div><div class="ps">Performance metrics across all pilot applicants.</div>';
+		let html='<div class="pt">Pilot Results &amp; ROI</div><div class="ps">Performance metrics across all pilot applicants &mdash; tracking all merchant actions.</div>';
 		html+='<div class="money" style="margin-bottom:18px">';
 		html+='<div class="mc"><div class="ml">Total applicants</div><div class="mv">'+s.total_pilots+'</div></div>';
 		html+='<div class="mc"><div class="ml">Contacted</div><div class="mv">'+s.contacted+'</div></div>';
-		html+='<div class="mc"><div class="ml">Total reorders</div><div class="mv">'+s.total_reorders+'</div></div>';
+		html+='<div class="mc"><div class="ml">Total actions</div><div class="mv">'+s.total_actions+'</div></div>';
 		html+='<div class="mc"><div class="ml">Est. value</div><div class="mv">$'+s.est_total_value+'</div></div>';
 		html+='</div>';
-		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days active</th><th>Reorders</th><th>Velocity</th><th>Est. value</th></tr></thead><tbody>';
+		html+='<div style="background:var(--alt);border-radius:var(--r);padding:14px;margin-bottom:18px">';
+		html+='<div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--ink2)">Action breakdown</div>';
+		html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+		html+='<div><div style="font-size:11px;color:var(--ink3)">Reorders</div><div style="font-size:16px;font-weight:700;color:var(--brand)">'+s.total_reorders+'</div></div>';
+		html+='<div><div style="font-size:11px;color:var(--ink3)">Discounts</div><div style="font-size:16px;font-weight:700;color:var(--good)">'+s.total_discounts+'</div></div>';
+		html+='<div><div style="font-size:11px;color:var(--ink3)">Promotions</div><div style="font-size:16px;font-weight:700;color:var(--warn)">'+s.total_promotions+'</div></div>';
+		html+='<div><div style="font-size:11px;color:var(--ink3)">Queries</div><div style="font-size:16px;font-weight:700;color:var(--ink2)">'+s.total_queries+'</div></div>';
+		html+='</div></div>';
+		html+='<table class="tbl"><thead><tr><th>Name</th><th>Store</th><th>Days</th><th>Reorders</th><th>Discounts</th><th>Velocity</th><th>Est. value</th></tr></thead><tbody>';
 		j.pilots.forEach(function(p){
 			html+='<tr>';
 			html+='<td><b>'+escapeHtml(p.name)+'</b></td>';
 			html+='<td>'+escapeHtml(p.store_name)+'</td>';
 			html+='<td>'+p.days_active+'</td>';
 			html+='<td>'+(p.reorder_count > 0 ? '<span style="color:var(--good);font-weight:700">'+p.reorder_count+'</span>' : '—')+'</td>';
+			html+='<td>'+(p.discount_count > 0 ? '<span style="color:var(--good);font-weight:700">'+p.discount_count+'</span>' : '—')+'</td>';
 			html+='<td>'+p.reorder_velocity+'/day</td>';
 			html+='<td>$'+p.est_value+'</td>';
 			html+='</tr>';
