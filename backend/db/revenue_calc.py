@@ -3,7 +3,11 @@ Revenue calculation module for pilot program metrics.
 Queries Snowflake for actual order data to compute real revenue values.
 """
 
-from db.snowflake_client import run_query
+try:
+    from db.snowflake_client import run_query
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
 from db.actions_db import get_actions
 import logging
 

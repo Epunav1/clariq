@@ -1,5 +1,10 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from db.snowflake_client import get_connection
+
+try:
+    from db.snowflake_client import get_connection
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
 import csv
 import io
 

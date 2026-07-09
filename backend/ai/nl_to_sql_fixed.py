@@ -1,9 +1,29 @@
 import os
-from anthropic import Anthropic
-from db.snowflake_client import SnowflakeClient
+import logging
 
-client = Anthropic()
-snowflake_client = SnowflakeClient()
+logger = logging.getLogger(__name__)
+
+try:
+    from anthropic import Anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
+
+try:
+    from db.snowflake_client import SnowflakeClient
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
+
+if ANTHROPIC_AVAILABLE:
+    client = Anthropic()
+else:
+    client = None
+
+if SNOWFLAKE_AVAILABLE:
+    snowflake_client = SnowflakeClient()
+else:
+    snowflake_client = None
 
 # System prompt for Claude to convert natural language to SQL
 NL_TO_SQL_SYSTEM = """You are an expert SQL analyst. Your job is to convert natural language questions into accurate Snowflake SQL queries.
