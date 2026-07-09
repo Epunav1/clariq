@@ -297,6 +297,7 @@ pytest -v backend/tests/test_api.py::TestPerformanceAndLoad
 
 - **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Complete API reference
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
+- **[FAQ.md](FAQ.md)** - Frequently asked questions
 - **[.env.production.example](.env.production.example)** - Environment configuration
 - **[scripts/backup.sh](scripts/backup.sh)** - Database backup script
 
