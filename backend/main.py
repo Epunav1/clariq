@@ -40,6 +40,8 @@ from routes.recommendations import router as recommend_router
 from routes.pilot import router as pilot_router
 from routes.pilot_analytics import router as pilot_analytics_router
 from routes.actions import router as actions_router
+from routes.sync import router as sync_router
+from sync_scheduler import start_scheduler, stop_scheduler
 # from routes.auth import router as auth_router
 
 # Mount routers
@@ -50,7 +52,20 @@ app.include_router(recommend_router, prefix="/api")
 app.include_router(pilot_router, prefix="/api/pilot")
 app.include_router(pilot_analytics_router, prefix="/api/pilot")
 app.include_router(actions_router, prefix="/api/actions")
+app.include_router(sync_router, prefix="/api/sync")
 # app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
+
+# Startup and shutdown events for background scheduler
+@app.on_event("startup")
+async def startup_event():
+    """Start the background sync scheduler."""
+    start_scheduler()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Stop the background sync scheduler."""
+    stop_scheduler()
 
 # Health check endpoint
 @app.get("/api/health")

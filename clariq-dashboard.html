@@ -201,6 +201,7 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="ni" data-page="pilot" onclick="go('pilot')">Pilot applicants</div>
 <div class="ns">Account</div>
 <div class="ni" data-page="connections" onclick="go('connections')">Connections</div>
+<div class="ni" data-page="sync" onclick="go('sync')">Data sync</div>
 <div class="ni" data-page="billing" onclick="go('billing')">Billing</div>
 <div class="ni" data-page="settings" onclick="go('settings')">Settings</div>
 </div>
@@ -370,6 +371,15 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 <div class="sg"><div class="sg-h">Usage this month</div><div class="sg-r"><div class="sl">Questions asked</div><div class="sv">974</div></div><div class="sg-r"><div class="sl">Stores connected</div><div class="sv">3 of unlimited</div></div><div class="sg-r"><div class="sl">Days left</div><div class="sv">12</div></div></div>
 <div class="sg"><div class="sg-h">Payment history</div><div class="sg-r"><div class="sl">Apr 1, 2026</div><div class="sv">$99.00 <button class="sg-btn" onclick="toast('Invoice downloaded','success')">Download</button></div></div><div class="sg-r"><div class="sl">Mar 1, 2026</div><div class="sv">$99.00 <button class="sg-btn" onclick="toast('Invoice downloaded','success')">Download</button></div></div><div class="sg-r"><div class="sl">Feb 1, 2026</div><div class="sv">$99.00 <button class="sg-btn" onclick="toast('Invoice downloaded','success')">Download</button></div></div></div>
 <div class="sg"><div class="sg-h">Payment method</div><div class="sg-r"><div class="sl">Visa ending in 4242</div><div class="sv"><button class="sg-btn" onclick="showModal('payment')">Update</button></div></div></div>
+</div>
+
+<!-- DATA SYNC -->
+<div class="page" id="pg-sync">
+<div class="pt">Data sync</div><div class="ps">Manage background syncs of your store data to Snowflake for AI analysis.</div>
+<div class="sg"><div class="sg-h">Sync status</div><div id="sync-status-container"></div></div>
+<div class="sg"><div class="sg-h">Actions</div><div class="sg-r"><div class="sl">Sync all now</div><div class="sv"><button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="triggerAllSyncs()">Run sync</button></div></div></div>
+<div class="sg"><div class="sg-h">Configuration</div><div class="sg-r"><div class="sl">Shopify sync interval</div><div class="sv">Every 60 minutes</div></div><div class="sg-r"><div class="sl">Amazon sync interval</div><div class="sv">Every 120 minutes</div></div><div class="sg-r"><div class="sl">Auto-sync on startup</div><div class="sv"><button class="toggle-sw on"></button></div></div></div>
+<div class="sg"><div class="sg-h">Recent sync jobs</div><div id="sync-jobs-container"></div></div>
 </div>
 
 <!-- SETTINGS -->
@@ -870,6 +880,95 @@ async function generateEmail(pilotId){
 		document.getElementById('modalOverlay').classList.add('show');
 		document.getElementById('pilotEmailModal').classList.add('open');
 	}catch(err){toast('Failed to load email: '+err.message,'error')}
+}
+
+/* === SYNC === */
+async function loadSyncStatus(){
+	try{
+		const res=await fetch('/api/sync/status');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		let html='';
+		if(data.latest_syncs){
+			for(const [key,sync] of Object.entries(data.latest_syncs)){
+				const status=sync.status;
+				const statusColor=status==='success'?'var(--good)':(status==='running'?'var(--brand)':'var(--bad)');
+				const lastSynced=new Date(sync.last_synced_at).toLocaleString();
+				const duration=(sync.duration_seconds||0).toFixed(1);
+				html+='<div class="sg-r">';
+				html+='<div class="sl">'+key.charAt(0).toUpperCase()+key.slice(1)+' sync</div>';
+				html+='<div class="sv" style="display:flex;gap:8px;align-items:center">';
+				html+='<span style="color:'+statusColor+';font-weight:700">'+status.toUpperCase()+'</span>';
+				html+='<small style="color:var(--ink3)">'+lastSynced+'</small>';
+				html+='</div>';
+				html+='</div>';
+			}
+		}
+		document.getElementById('sync-status-container').innerHTML=html||'<div class="ps">No sync data available</div>';
+		
+		// Load job history
+		const jobRes=await fetch('/api/sync/jobs');
+		const jobData=await jobRes.json();
+		if(jobRes.ok){
+			let jobHtml='';
+			if(jobData.jobs && jobData.jobs.length>0){
+				jobHtml='<table style="width:100%;font-size:12px"><thead><tr><th style="text-align:left">Type</th><th style="text-align:left">Status</th><th style="text-align:left">Records</th><th style="text-align:left">Time</th><th style="text-align:left">Last synced</th></tr></thead><tbody>';
+				jobData.jobs.slice(0,5).forEach(job=>{
+					const status=job.status||'unknown';
+					const statusColor=status==='success'?'var(--good)':(status==='running'?'var(--brand)':'var(--bad)');
+					const lastSynced=new Date(job.last_synced_at).toLocaleDateString();
+					jobHtml+='<tr>';
+					jobHtml+='<td>'+job.sync_type+'</td>';
+					jobHtml+='<td style="color:'+statusColor+';font-weight:700">'+status+'</td>';
+					jobHtml+='<td>'+job.records_synced+'</td>';
+					jobHtml+='<td>'+(job.duration_seconds||0).toFixed(1)+'s</td>';
+					jobHtml+='<td>'+lastSynced+'</td>';
+					jobHtml+='</tr>';
+				});
+				jobHtml+='</tbody></table>';
+			}else{jobHtml='<div class="ps">No sync jobs yet</div>'}
+			document.getElementById('sync-jobs-container').innerHTML=jobHtml;
+		}
+	}catch(err){
+		document.getElementById('sync-status-container').innerHTML='<div class="ps" style="color:var(--bad)">Failed to load sync status: '+err.message+'</div>';
+	}
+}
+
+async function triggerAllSyncs(){
+	try{
+		const btn=event.target;
+		btn.disabled=true;
+		btn.textContent='Syncing...';
+		const res=await fetch('/api/sync/all/now',{method:'POST'});
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		toast('All syncs triggered successfully','success');
+		setTimeout(loadSyncStatus,1000);
+		btn.disabled=false;
+		btn.textContent='Run sync';
+	}catch(err){
+		toast('Failed to trigger sync: '+err.message,'error');
+		btn.disabled=false;
+		btn.textContent='Run sync';
+	}
+}
+
+// Load sync status when page is viewed
+if(document.readyState==='loading'){
+	document.addEventListener('DOMContentLoaded',function(){
+		const origGo=window.go;
+		window.go=function(p){
+			origGo(p);
+			if(p==='sync'){loadSyncStatus()}
+		};
+	});
+}else{
+	const origGo=window.go;
+	window.go=function(p){
+		origGo(p);
+		if(p==='sync'){loadSyncStatus()}
+	};
 }
 </script>
 </body>
