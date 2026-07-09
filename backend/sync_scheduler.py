@@ -88,6 +88,21 @@ def sync_amazon_data(store_id: str = 'all'):
         return {'status': 'failed', 'error': error_msg}
 
 
+def send_scheduled_reports():
+    """
+    Send scheduled pilot program reports to subscribed recipients.
+    This is called by the scheduler based on configured frequency.
+    """
+    try:
+        from routes.reports import send_scheduled_reports as send_reports_impl
+        result = send_reports_impl()
+        logger.info(f'Scheduled reports sent: {result}')
+        return result
+    except Exception as e:
+        logger.error(f'Failed to send scheduled reports: {e}')
+        return {'status': 'failed', 'error': str(e)}
+
+
 def start_scheduler():
     """Start the background scheduler with configured sync jobs."""
     global scheduler
@@ -136,6 +151,16 @@ def start_scheduler():
             replace_existing=True
         )
         logger.info('Scheduled initial sync to run in 2-3 seconds')
+    
+    # Send scheduled reports every Tuesday at 9 AM
+    scheduler.add_job(
+        send_scheduled_reports,
+        trigger=CronTrigger(day_of_week='1', hour='9', minute='0'),  # Tuesday at 9 AM
+        id='scheduled_reports_job',
+        name='Send scheduled reports',
+        replace_existing=True
+    )
+    logger.info('Scheduled report sending for Tuesdays at 9 AM UTC')
     
     scheduler.start()
     logger.info('Background scheduler started')

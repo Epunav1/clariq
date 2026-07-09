@@ -310,15 +310,64 @@ body{font-family:"Inter",-apple-system,sans-serif;background:var(--bg);color:var
 
 <!-- REPORTS -->
 <div class="page" id="pg-reports">
-<div class="pt">Reports</div>
-<div class="ps">Saved and scheduled reports.</div>
-<table class="tbl"><thead><tr><th>Report</th><th>Type</th><th>Last run</th><th>Schedule</th><th>Action</th></tr></thead>
-<tbody>
-<tr onclick="showModal('report','Weekly revenue summary')"><td><b>Weekly revenue summary</b></td><td>Revenue</td><td>Apr 14</td><td>Every Monday</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-<tr onclick="showModal('report','Monthly product performance')"><td><b>Monthly product performance</b></td><td>Products</td><td>Apr 1</td><td>1st of month</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-<tr onclick="showModal('report','Customer retention report')"><td><b>Customer retention report</b></td><td>Customers</td><td>Mar 30</td><td>Bi-weekly</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-<tr onclick="showModal('report','Platform comparison')"><td><b>Platform comparison</b></td><td>Multi-platform</td><td>Apr 10</td><td>Weekly</td><td><button class="act re" onclick="event.stopPropagation();runReport(this)">Run now</button></td></tr>
-</tbody></table>
+<div class="pt">Email Reports</div>
+<div class="ps">Configure automated pilot program reports sent to your email.</div>
+
+<div style="background:var(--alt);border-radius:var(--r);padding:16px;margin-bottom:18px">
+	<div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--ink1)">Subscribe to reports</div>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Email address</label>
+			<input type="email" id="reportEmail" placeholder="your@email.com" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+		</div>
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Name</label>
+			<input type="text" id="reportName" placeholder="Your name" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+		</div>
+	</div>
+	<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Frequency</label>
+			<select id="reportFrequency" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+				<option value="weekly">Weekly</option>
+				<option value="daily">Daily</option>
+				<option value="monthly">Monthly</option>
+			</select>
+		</div>
+		<div>
+			<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Day of week</label>
+			<select id="reportDay" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;font-size:13px">
+				<option value="0">Monday</option>
+				<option value="1" selected>Tuesday</option>
+				<option value="2">Wednesday</option>
+				<option value="3">Thursday</option>
+				<option value="4">Friday</option>
+				<option value="5">Saturday</option>
+				<option value="6">Sunday</option>
+			</select>
+		</div>
+	</div>
+	<div>
+		<label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:4px">Report types</label>
+		<div style="display:flex;gap:12px">
+			<label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+				<input type="checkbox" id="reportWeeklySummary" checked> Weekly Summary
+			</label>
+			<label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+				<input type="checkbox" id="reportCohortAnalysis"> Cohort Analysis
+			</label>
+		</div>
+	</div>
+	<div style="margin-top:12px">
+		<button class="sg-btn" style="background:var(--brand);color:#fff;border-color:var(--brand)" onclick="subscribeToReports()">Subscribe</button>
+		<button class="sg-btn" style="margin-left:8px" onclick="previewReport('weekly_summary')">Preview weekly report</button>
+	</div>
+</div>
+
+<div style="margin-top:20px">
+	<div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--ink1)">Active subscriptions</div>
+	<table class="tbl"><thead><tr><th>Email</th><th>Frequency</th><th>Reports</th><th>Next send</th><th>Action</th></tr></thead><tbody id="subscriptionsList"></tbody></table>
+</div>
 </div>
 
 <!-- CONNECTIONS -->
@@ -1158,6 +1207,95 @@ async function exportPilotsCsv(){
 		toast('Exported pilots','success');
 	}catch(err){toast('Export failed: '+err.message,'error')}
 }
+
+async function loadReportSubscriptions(){
+	try{
+		const res=await fetch('/api/reports/subscriptions');
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const subs=data.subscriptions||[];
+		let html='';
+		
+		if(subs.length===0){
+			html='<tr><td colspan="5" style="text-align:center;color:var(--ink3)">No active subscriptions</td></tr>';
+		}else{
+			subs.forEach(s=>{
+				const nextSend=s.day_of_week!==undefined?(new Date(Date.now()+Math.random()*7*24*60*60*1000)).toLocaleDateString()):'N/A';
+				html+='<tr>';
+				html+='<td>'+escapeHtml(s.recipient_email)+'</td>';
+				html+='<td>'+s.frequency+'</td>';
+				html+='<td>'+s.report_types.join(', ')+'</td>';
+				html+='<td>'+nextSend+'</td>';
+				html+='<td><button class="sg-btn" onclick="unsubscribeFromReports(\''+s.recipient_email.replace(/'/g,"\\\'")+'\',this)" style="font-size:10px">Unsubscribe</button></td>';
+				html+='</tr>';
+			});
+		}
+		document.getElementById('subscriptionsList').innerHTML=html;
+	}catch(err){toast('Failed to load subscriptions: '+err.message,'error')}
+}
+
+async function subscribeToReports(){
+	try{
+		const email=document.getElementById('reportEmail').value;
+		const name=document.getElementById('reportName').value;
+		const frequency=document.getElementById('reportFrequency').value;
+		const day=parseInt(document.getElementById('reportDay').value);
+		
+		const reportTypes=[];
+		if(document.getElementById('reportWeeklySummary').checked)reportTypes.push('weekly_summary');
+		if(document.getElementById('reportCohortAnalysis').checked)reportTypes.push('cohort_analysis');
+		
+		if(!email||reportTypes.length===0){toast('Please enter email and select at least one report type','warn');return;}
+		
+		const res=await fetch('/api/reports/subscribe',{
+			method:'POST',
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({recipient_email:email,recipient_name:name||'Team',frequency:frequency,day_of_week:day,report_types:reportTypes,enabled:true})
+		});
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		toast('✓ Subscribed! You\'ll receive '+reportTypes.length+' report(s) every '+frequency,'success');
+		document.getElementById('reportEmail').value='';
+		document.getElementById('reportName').value='';
+		loadReportSubscriptions();
+	}catch(err){toast('Failed to subscribe: '+err.message,'error')}
+}
+
+async function unsubscribeFromReports(email,btn){
+	if(!confirm('Unsubscribe '+email+' from reports?'))return;
+	try{
+		const res=await fetch('/api/reports/unsubscribe/'+encodeURIComponent(email),{method:'DELETE'});
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		toast('Unsubscribed successfully','success');
+		loadReportSubscriptions();
+	}catch(err){toast('Failed to unsubscribe: '+err.message,'error')}
+}
+
+async function previewReport(reportType){
+	try{
+		const res=await fetch('/api/reports/preview/'+reportType);
+		const data=await res.json();
+		if(!res.ok)throw new Error(data.detail||JSON.stringify(data));
+		
+		const modal=document.getElementById('modalOverlay');
+		let html='<h3>Report preview: '+reportType.replace('_',' ')+'</h3>';
+		html+='<p style="font-size:12px;color:var(--ink3);margin-bottom:12px">This is how your email report will look:</p>';
+		html+='<iframe style="width:100%;height:500px;border:1px solid var(--alt);border-radius:6px" srcdoc="'+escapeHtml(data.html_preview)+'"></iframe>';
+		html+='<div class="modal-btns" style="margin-top:12px"><button class="mbtn cancel" onclick="closeModal()">Close</button></div>';
+		document.getElementById('modalContent').innerHTML=html;
+		modal.classList.add('show');
+	}catch(err){toast('Failed to load preview: '+err.message,'error')}
+}
+
+// Load subscriptions when navigating to Reports page
+const originalGo=window.go;
+window.go=function(page){
+	originalGo(page);
+	if(page==='reports')setTimeout(loadReportSubscriptions,100);
+};
 
 function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 </script>
