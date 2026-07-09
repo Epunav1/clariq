@@ -1,5 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from sync_scheduler import sync_shopify_data, sync_amazon_data, get_scheduler_status
+
+try:
+    from sync_scheduler import sync_shopify_data, sync_amazon_data, get_scheduler_status
+    SCHEDULER_AVAILABLE = True
+except ImportError as e:
+    SCHEDULER_AVAILABLE = False
+    import logging
+    logging.warning(f"Scheduler not available: {str(e)}")
+
 from db.sync_status import get_all_sync_jobs, get_sync_job
 
 router = APIRouter()
@@ -8,6 +16,8 @@ router = APIRouter()
 @router.get('/status')
 async def get_sync_status():
     """Get current sync scheduler status and recent job history."""
+    if not SCHEDULER_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Scheduler not available")
     try:
         status = get_scheduler_status()
         return status
@@ -45,6 +55,8 @@ async def get_job_details(job_id: str):
 @router.post('/shopify/now')
 async def trigger_shopify_sync(store_id: str = 'all'):
     """Manually trigger a Shopify data sync."""
+    if not SCHEDULER_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Scheduler not available")
     try:
         result = sync_shopify_data(store_id)
         if result['status'] == 'failed':
@@ -62,6 +74,8 @@ async def trigger_shopify_sync(store_id: str = 'all'):
 @router.post('/amazon/now')
 async def trigger_amazon_sync(store_id: str = 'all'):
     """Manually trigger an Amazon data sync."""
+    if not SCHEDULER_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Scheduler not available")
     try:
         result = sync_amazon_data(store_id)
         if result['status'] == 'failed':
@@ -79,6 +93,8 @@ async def trigger_amazon_sync(store_id: str = 'all'):
 @router.post('/all/now')
 async def trigger_all_syncs():
     """Manually trigger all data syncs."""
+    if not SCHEDULER_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Scheduler not available")
     try:
         shopify_result = sync_shopify_data()
         amazon_result = sync_amazon_data()

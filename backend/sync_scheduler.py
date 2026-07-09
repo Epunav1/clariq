@@ -4,8 +4,14 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from db.sync_status import get_or_create_sync_job, update_sync_job, get_all_sync_jobs
-from db.shopify_sync_wrapper import sync_all_shopify_stores
 from typing import Optional
+
+try:
+    from db.shopify_sync_wrapper import sync_all_shopify_stores
+    SHOPIFY_SYNC_AVAILABLE = True
+except ImportError:
+    SHOPIFY_SYNC_AVAILABLE = False
+    sync_all_shopify_stores = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,6 +26,9 @@ def sync_shopify_data(store_id: str = 'all'):
     Sync Shopify store data to Snowflake.
     Calls real Shopify API via the wrapper module.
     """
+    if not SHOPIFY_SYNC_AVAILABLE:
+        return {'status': 'failed', 'error': 'Shopify sync not available'}
+    
     job_id = f'shopify_sync_{store_id}_{datetime.utcnow().timestamp()}'
     job = get_or_create_sync_job(job_id, 'shopify', store_id)
     
