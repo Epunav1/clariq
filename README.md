@@ -301,14 +301,37 @@ pytest -v backend/tests/test_api.py::TestPerformanceAndLoad
 
 ---
 
+## � Production Launch
+
+**Ready to go live at https://tryclariq.com?**
+
+1. **Start Here:** [LAUNCH_SUMMARY.md](LAUNCH_SUMMARY.md) - Overview & timeline
+2. **Pre-Flight:** Run `bash scripts/pre_flight_check.sh` - Automated verification
+3. **Deploy:** Follow [GO_LIVE_CHECKLIST.md](GO_LIVE_CHECKLIST.md) - 5 phases (~55 min)
+4. **Execute:** Use [LAUNCH_DAY.md](LAUNCH_DAY.md) - Real-time step-by-step guide
+5. **Configure:** Reference [ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md) - All 50+ variables explained
+
+---
+
 ## 📚 Documentation
 
-- **[PRODUCTION_LAUNCH.md](PRODUCTION_LAUNCH.md)** - Launch playbook (start here!)
-- **[FAQ.md](FAQ.md)** - Frequently asked questions
-- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Complete API reference
+**Launch Resources (Use in order for deployment):**
+- **[LAUNCH_SUMMARY.md](LAUNCH_SUMMARY.md)** - Overview & project status
+- **[GO_LIVE_CHECKLIST.md](GO_LIVE_CHECKLIST.md)** - 5-phase production checklist
+- **[LAUNCH_DAY.md](LAUNCH_DAY.md)** - Real-time execution guide with commands
+- **[ENV_SETUP_GUIDE.md](ENV_SETUP_GUIDE.md)** - Environment variables reference
+
+**Operational Guides:**
+- **[PRODUCTION_LAUNCH.md](PRODUCTION_LAUNCH.md)** - Original 5-phase playbook
+- **[RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)** - Railway.app specific guide
+- **[DNS_SETUP.md](DNS_SETUP.md)** - Domain & SSL configuration
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Alternative platforms (AWS, Heroku, etc)
 - **[FEEDBACK_SETUP.md](FEEDBACK_SETUP.md)** - User feedback system
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
-- **[.env.production.example](.env.production.example)** - Environment configuration
+
+**Reference:**
+- **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)** - Complete API reference
+- **[FAQ.md](FAQ.md)** - Frequently asked questions
+- **[.env.production.example](.env.production.example)** - Environment template
 
 ---
 
