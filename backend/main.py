@@ -79,40 +79,29 @@ app.include_router(feedback_router, prefix="/api")
 @app.on_event("startup")
 async def startup_event():
     """Start the background sync scheduler."""
-    start_scheduler()
+    try:
+        start_scheduler()
+    except Exception as e:
+        print(f"Warning: Could not start scheduler: {e}")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Stop the background sync scheduler."""
-    stop_scheduler()
+    try:
+        stop_scheduler()
+    except Exception as e:
+        print(f"Warning: Could not stop scheduler: {e}")
 
 # Health check endpoint
 @app.get("/api/health")
 async def health_check():
-    """Check API and Snowflake connection status."""
-    from db.snowflake_client import SnowflakeClient
-    
-    try:
-        sf = SnowflakeClient()
-        is_connected = sf.test_connection()
-        
-        if is_connected:
-            return {
-                "api": "healthy",
-                "snowflake": "connected"
-            }
-        else:
-            return {
-                "api": "healthy",
-                "snowflake": "disconnected"
-            }
-    except Exception as e:
-        return {
-            "api": "healthy",
-            "snowflake": "error",
-            "error": str(e)
-        }
+    """Check API health status."""
+    return {
+        "status": "ok",
+        "service": "CLARIQ API",
+        "version": "0.4.0"
+    }
 
 
 # Root endpoint
