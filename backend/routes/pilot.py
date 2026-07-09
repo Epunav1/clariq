@@ -255,3 +255,28 @@ async def export_pilot_pdf(pilot_id: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post('/complete/{pilot_id}')
+async def complete_pilot(pilot_id: int):
+    """Mark a pilot as completed."""
+    try:
+        p = get_pilot(pilot_id)
+        if not p:
+            raise HTTPException(status_code=404, detail='Pilot not found')
+        
+        now = datetime.utcnow().isoformat()
+        update_pilot_status(pilot_id, 'completed', completed_at=now)
+        
+        # Fetch updated pilot
+        updated_pilot = get_pilot(pilot_id)
+        
+        return {
+            'success': True,
+            'pilot': updated_pilot,
+            'message': f'Pilot {p["name"]} marked as completed'
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

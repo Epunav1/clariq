@@ -862,7 +862,7 @@ async function loadPilotResults(){
 			var revenueDisplay='$'+p.est_value;
 			if(p.total_revenue > 0){revenueDisplay='$'+p.total_revenue+' <small style="color:var(--good);font-weight:700">(real)</small>'}
 			html+='<td>'+revenueDisplay+'</td>';
-			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button>'+(p.status!=='completed'?'<button class="sg-btn" onclick="completePilot('+p.id+',\'\'+escapeHtml(p.name).replace(/\'/g,"\\\\'")+"\\'\\'')\") style="font-size:10px\">Complete</button>':'<span style="color:var(--good);font-weight:700\">✓ Done</span>')+'</td>';
+			html+='<td><button class="sg-btn" onclick="sendPilotResultsEmail('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'','+p.reorder_count+','+p.est_value+','+p.days_active+')" style="font-size:10px">Email</button> <button class="sg-btn" onclick="downloadPilotPDF('+p.id+',\''+escapeHtml(p.name).replace(/'/g,"\\'")+'\'')" style="font-size:10px">PDF</button></td>';
 			html+='</tr>';
 		});
 		html+='</tbody></table>';

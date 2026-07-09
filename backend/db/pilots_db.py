@@ -37,6 +37,8 @@ def init_db():
         cur.execute("ALTER TABLE pilots ADD COLUMN last_email_sent_at TEXT")
     if 'last_email_body' not in cols:
         cur.execute("ALTER TABLE pilots ADD COLUMN last_email_body TEXT")
+    if 'completed_at' not in cols:
+        cur.execute("ALTER TABLE pilots ADD COLUMN completed_at TEXT")
     c.commit()
     cur.close()
     c.close()
@@ -67,13 +69,25 @@ def list_pilots() -> List[Dict]:
     return [dict(zip(cols, r)) for r in rows]
 
 
-def update_pilot_status(pilot_id: int, status: str) -> Optional[Dict]:
+def update_pilot_status(pilot_id: int, status: str, contacted_at: str = None, completed_at: str = None) -> Optional[Dict]:
     init_db()
     c = _conn()
     cur = c.cursor()
     from datetime import datetime
-    now = datetime.utcnow().isoformat()
-    cur.execute('UPDATE pilots SET status=?, contacted_at=? WHERE id=?', (status, now, pilot_id))
+    
+    # If contacted_at not provided but status is 'contacted', set it to now
+    if not contacted_at and status == 'contacted':
+        contacted_at = datetime.utcnow().isoformat()
+    
+    if contacted_at and completed_at:
+        cur.execute('UPDATE pilots SET status=?, contacted_at=?, completed_at=? WHERE id=?', (status, contacted_at, completed_at, pilot_id))
+    elif contacted_at:
+        cur.execute('UPDATE pilots SET status=?, contacted_at=? WHERE id=?', (status, contacted_at, pilot_id))
+    elif completed_at:
+        cur.execute('UPDATE pilots SET status=?, completed_at=? WHERE id=?', (status, completed_at, pilot_id))
+    else:
+        cur.execute('UPDATE pilots SET status=? WHERE id=?', (status, pilot_id))
+    
     c.commit()
     cur.close()
     c.close()
