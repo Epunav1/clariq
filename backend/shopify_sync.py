@@ -1,7 +1,12 @@
 import requests
-import snowflake.connector
 import os
 from dotenv import load_dotenv
+
+try:
+    import snowflake.connector
+    SNOWFLAKE_AVAILABLE = True
+except ImportError:
+    SNOWFLAKE_AVAILABLE = False
 
 load_dotenv()
 
@@ -10,6 +15,8 @@ TOKEN = os.getenv("SHOPIFY_TOKEN")
 HEADERS = {"X-Shopify-Access-Token": TOKEN}
 
 def get_connection():
+    if not SNOWFLAKE_AVAILABLE:
+        raise RuntimeError("Snowflake connector not available")
     return snowflake.connector.connect(
         account=os.getenv("SNOWFLAKE_ACCOUNT"),
         user=os.getenv("SNOWFLAKE_USER"),
@@ -20,6 +27,8 @@ def get_connection():
     )
 
 def sync_orders():
+    if not SNOWFLAKE_AVAILABLE:
+        raise RuntimeError("Snowflake connector not available")
     url = f"https://{SHOP}/admin/api/2024-01/orders.json?limit=250&status=any"
     r = requests.get(url, headers=HEADERS)
     orders = r.json().get("orders", [])

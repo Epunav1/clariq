@@ -51,7 +51,16 @@ from routes.analytics import router as analytics_router
 from routes.integrations import router as integrations_router
 from routes.billing import router as billing_router
 from routes.feedback import router as feedback_router
-from sync_scheduler import start_scheduler, stop_scheduler
+
+try:
+    from sync_scheduler import start_scheduler, stop_scheduler
+    SCHEDULER_AVAILABLE = True
+except ImportError:
+    SCHEDULER_AVAILABLE = False
+    def start_scheduler():
+        pass
+    def stop_scheduler():
+        pass
 # from routes.auth import router as auth_router
 
 # Mount routers
