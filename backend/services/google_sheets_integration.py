@@ -9,8 +9,13 @@ import json
 from typing import Dict, List, Optional
 from datetime import datetime
 import logging
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+
+try:
+    import gspread
+    from oauth2client.service_account import ServiceAccountCredentials
+    SHEETS_AVAILABLE = True
+except ImportError:
+    SHEETS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +24,12 @@ class GoogleSheetsService:
     """Service for exporting data to Google Sheets"""
     
     def __init__(self):
+        if not SHEETS_AVAILABLE:
+            logger.warning("Google Sheets integration not available: oauth2client not installed")
+            self.client = None
+            self.spreadsheet = None
+            return
+            
         self.creds_json = os.getenv('GOOGLE_SHEETS_CREDENTIALS')
         self.spreadsheet_id = os.getenv('GOOGLE_SHEETS_SPREADSHEET_ID')
         self.client = None

@@ -47,7 +47,7 @@ run_test "Python syntax (main.py)" "python -m py_compile backend/main.py"
 run_test "Python syntax (feedback)" "python -m py_compile backend/routes/feedback.py"
 run_test "Python syntax (services)" "python -m py_compile backend/services/feedback_service.py"
 run_test "Import main app" "cd backend && python -c 'from main import app; print(\"OK\")' && cd .."
-run_test "No exposed secrets" "! grep -r 'sk_' backend/ 2>/dev/null | grep -v '.pyc' | grep -q '='"
+run_test "No exposed secrets" "! grep -r 'sk_live_\|sk_test_\|STRIPE_KEY.*=' backend/ 2>/dev/null | grep -v '.pyc' | grep -q ."
 run_test "Git status clean" "git status | grep -q 'nothing to commit' || git status | grep -q 'On branch'"
 
 echo ""

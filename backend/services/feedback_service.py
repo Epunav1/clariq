@@ -19,6 +19,10 @@ class FeedbackDB:
     
     def __init__(self, db_path: str = "clariq_feedback.sqlite"):
         self.db_path = db_path
+        # Create directory if it doesn't exist
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
         self.init_db()
     
     def init_db(self):

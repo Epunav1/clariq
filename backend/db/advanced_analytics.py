@@ -13,9 +13,10 @@ import sqlite3
 import numpy as np
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
+import os
 from db.pilots_db import get_pilot, list_pilots
 from db.actions_db import get_pilot_actions, get_action_summary
-from db.revenue_calc import calculate_revenue
+from db.revenue_calc import calculate_pilot_revenue
 from db.roi_calc import calculate_pilot_roi
 import json
 
@@ -24,6 +25,10 @@ class AdvancedAnalytics:
     
     def __init__(self, db_path: str = "data/clariq_analytics.sqlite"):
         self.db_path = db_path
+        # Create directory if needed
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
         self._init_db()
     
     def _init_db(self):
@@ -172,7 +177,7 @@ class AdvancedAnalytics:
         if not pilot:
             return {'error': 'Pilot not found'}
         
-        current_revenue = calculate_revenue(pilot_id)
+        current_revenue = calculate_pilot_revenue(pilot_id).get('total_revenue', 0)
         actions = get_pilot_actions(pilot_id)
         
         # Calculate average daily revenue from reorders
@@ -277,7 +282,7 @@ class AdvancedAnalytics:
         reorder_counts = []
         
         for pilot in matching_pilots:
-            revenue = calculate_revenue(pilot['id'])
+            revenue = calculate_pilot_revenue(pilot['id']).get('total_revenue', 0)
             roi_data = calculate_pilot_roi(pilot['id'])
             roi_pct = roi_data.get('roi_metrics', {}).get('roi_percent', 0)
             reorders = roi_data.get('action_metrics', {}).get('reorder_count', 0)
@@ -423,7 +428,7 @@ class AdvancedAnalytics:
             return {'error': 'Pilot not found'}
         
         # Get pilot metrics
-        pilot_revenue = calculate_revenue(pilot_id)
+        pilot_revenue = calculate_pilot_revenue(pilot_id).get('total_revenue', 0)
         pilot_roi_data = calculate_pilot_roi(pilot_id)
         pilot_roi = pilot_roi_data.get('roi_metrics', {}).get('roi_percent', 0)
         pilot_reorders = pilot_roi_data.get('action_metrics', {}).get('reorder_count', 0)
@@ -436,7 +441,7 @@ class AdvancedAnalytics:
         
         for p in all_pilots:
             if p['id'] != pilot_id:  # Exclude self
-                rev = calculate_revenue(p['id'])
+                rev = calculate_pilot_revenue(p['id']).get('total_revenue', 0)
                 roi_d = calculate_pilot_roi(p['id'])
                 all_revenues.append(rev)
                 all_rois.append(roi_d.get('roi_metrics', {}).get('roi_percent', 0))
@@ -488,9 +493,9 @@ class AdvancedAnalytics:
             if key == 'status':
                 filtered = [p for p in filtered if p.get('status') == value]
             elif key == 'min_revenue':
-                filtered = [p for p in filtered if calculate_revenue(p['id']) >= value]
+                filtered = [p for p in filtered if calculate_pilot_revenue(p['id']).get('total_revenue', 0) >= value]
             elif key == 'max_revenue':
-                filtered = [p for p in filtered if calculate_revenue(p['id']) <= value]
+                filtered = [p for p in filtered if calculate_pilot_revenue(p['id']).get('total_revenue', 0) <= value]
             elif key == 'min_roi':
                 filtered = [p for p in filtered if calculate_pilot_roi(p['id']).get('roi_metrics', {}).get('roi_percent', 0) >= value]
             elif key == 'max_roi':

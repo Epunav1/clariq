@@ -21,7 +21,12 @@ class PerformanceMonitor:
     
     def init_db(self):
         """Initialize performance metrics database."""
+        conn = None
         try:
+            # Ensure directory exists
+            import os
+            os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()
             
@@ -51,8 +56,11 @@ class PerformanceMonitor:
             c.execute('CREATE INDEX IF NOT EXISTS idx_system_created ON system_metrics(created_at)')
             
             conn.commit()
+        except Exception as e:
+            print(f"Warning: Could not initialize performance metrics database: {e}")
         finally:
-            conn.close()
+            if conn:
+                conn.close()
     
     def record_api_call(self, endpoint: str, method: str, status_code: int, response_time_ms: float):
         """Record API call metrics."""

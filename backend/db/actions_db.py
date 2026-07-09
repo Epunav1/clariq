@@ -101,3 +101,19 @@ def count_actions(action_type: Optional[str] = None, pilot_id: Optional[int] = N
     cur.close()
     c.close()
     return res['cnt'] if res else 0
+
+
+# Wrapper functions for compatibility
+def get_pilot_actions(pilot_id: int) -> List[Dict]:
+    """Get all actions for a specific pilot."""
+    return get_actions(pilot_id=pilot_id)
+
+
+def get_action_summary(pilot_id: int) -> Dict:
+    """Get summary of actions for a pilot."""
+    actions = get_actions(pilot_id=pilot_id)
+    return {
+        'total_actions': len(actions),
+        'actions': actions,
+        'by_type': {}
+    }
