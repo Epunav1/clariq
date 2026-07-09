@@ -5,3 +5,27 @@ backend-complete/.env
 
 # Local Netlify folder
 .netlify
+
+# Database files
+backend/data/*.db
+backend/data/*.sqlite
+backend/data/*.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,2 @@
+# This directory is used for SQLite database files
+# On Render, this will store clariq.db for local caching
