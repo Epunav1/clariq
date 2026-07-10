@@ -80,24 +80,6 @@ nav.n{position:relative;z-index:10;display:flex;align-items:center;justify-conte
 /* TRUST */
 .trust{background:var(--navy);color:#fff;padding:80px 60px;text-align:center}.trust h2{font-size:32px;font-weight:500;letter-spacing:-.02em;margin:0 0 10px}.trust p{color:#8fa3bf;font-size:15px;max-width:480px;margin:0 auto 32px}.trust-row{display:flex;justify-content:center;gap:60px}.ti .tv{font-size:36px;font-weight:400;background:linear-gradient(90deg,#ff8a3d,#e93e7b,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:4px}.ti .tl{font-size:13px;color:#8fa3bf}
 
-/* FAQ */
-.faq{padding:80px 60px;background:#fff;border-bottom:1px solid var(--line)}
-.faq .faq-head{text-align:center;margin-bottom:50px}
-.faq .faq-head h2{font-size:40px;font-weight:500;letter-spacing:-.02em;margin:0 0 14px}
-.faq .faq-head p{color:var(--ink2);font-size:16px;max-width:620px;margin:0 auto}
-.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:100%;margin:0 auto}
-.faq-item{border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:all .15s}
-.faq-item.open{border-color:var(--brand);box-shadow:0 8px 24px rgba(99,91,255,.1)}
-.faq-q{padding:20px;background:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:500;font-size:15px;color:var(--ink);transition:background .15s}
-.faq-item.open .faq-q{background:#faf9ff}
-.faq-q:hover{background:#f6f9fc}
-.faq-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .3s;flex-shrink:0}
-.faq-item.open .faq-icon{transform:rotate(180deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;background:#faf9ff}
-.faq-item.open .faq-a{max-height:500px}
-.faq-a-content{padding:20px;font-size:14px;line-height:1.6;color:var(--ink2)}
-@media(max-width:900px){.faq-grid{grid-template-columns:1fr}.faq{padding:60px 28px}.faq .faq-head h2{font-size:28px}}
-
 /* PRICING */
 .pricing{padding:100px 60px}.pricing .head{text-align:center;margin-bottom:40px}.pricing .head h2{font-size:44px;letter-spacing:-.02em;font-weight:500;margin:0 0 14px}.pricing .head p{color:var(--ink2);font-size:17px;max-width:520px;margin:0 auto}
 .toggle-wrap{display:flex;justify-content:center;margin-bottom:40px}.toggle{display:flex;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}.toggle button{padding:10px 22px;border-radius:10px;font-size:14px;font-weight:500;border:0;cursor:pointer;font-family:inherit;background:transparent;color:var(--ink2);transition:all .15s}.toggle button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(10,37,64,.08)}.save-badge{display:inline-block;background:#e6f4ed;color:#178a5a;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:6px}
@@ -203,40 +185,6 @@ nav.n{position:relative;z-index:10;display:flex;align-items:center;justify-conte
 
 <!-- TRUST -->
 <section class="trust"><h2>Your data stays yours. Always.</h2><p>Encrypted at rest and in transit. SOC 2 compliant. We never sell your data. Billing powered by Stripe.</p><div class="trust-row"><div class="ti"><div class="tv">256-bit</div><div class="tl">encryption</div></div><div class="ti"><div class="tv">99.99%</div><div class="tl">uptime</div></div><div class="ti"><div class="tv">SOC 2</div><div class="tl">compliant</div></div></div></section>
-
-<!-- FAQ -->
-<section class="faq">
-<div class="faq-head">
-<h2>Your questions answered.</h2>
-<p>Everything you need to know about clariq, from setup to support.</p>
-</div>
-<div class="faq-grid">
-<div class="faq-item" onclick="toggleFaq(this)">
-<div class="faq-q">How long does setup take?<div class="faq-icon">▼</div></div>
-<div class="faq-a"><div class="faq-a-content">2 minutes. Connect your store via OAuth, and we'll sync your data automatically. No code, no spreadsheets, no migration headaches.</div></div>
-</div>
-<div class="faq-item" onclick="toggleFaq(this)">
-<div class="faq-q">Is my data secure?<div class="faq-icon">▼</div></div>
-<div class="faq-a"><div class="faq-a-content">Absolutely. We use 256-bit encryption at rest and in transit, comply with SOC 2 standards, and never sell your data. Billing is handled by Stripe.</div></div>
-</div>
-<div class="faq-item" onclick="toggleFaq(this)">
-<div class="faq-q">Which platforms does clariq support?<div class="faq-icon">▼</div></div>
-<div class="faq-a"><div class="faq-a-content">We currently support Shopify, Amazon, TikTok Shop, Alibaba, Jumia, WooCommerce, and Etsy. More platforms are coming soon. Let us know which one you need!</div></div>
-</div>
-<div class="faq-item" onclick="toggleFaq(this)">
-<div class="faq-q">What if I need to cancel?<div class="faq-icon">▼</div></div>
-<div class="faq-a"><div class="faq-a-content">Cancel anytime, no questions asked. No contracts, no hidden fees. Your data can be exported or deleted on request.</div></div>
-</div>
-<div class="faq-item" onclick="toggleFaq(this)">
-<div class="faq-q">Do you offer a free trial?<div class="faq-icon">▼</div></div>
-<div class="faq-a"><div class="faq-a-content">Yes! Start with our free tier (1 store, 500 questions/month) or apply for a 7-day pilot with a dedicated onboarding call.</div></div>
-</div>
-<div class="faq-item" onclick="toggleFaq(this)">
-<div class="faq-q">What kind of support do you provide?<div class="faq-icon">▼</div></div>
-<div class="faq-a"><div class="faq-a-content">All plans include support. Starter gets email, Pro gets priority email, and Enterprise includes a dedicated account manager plus phone support.</div></div>
-</div>
-</div>
-</section>
 
 <!-- PRICING -->
 <section class="pricing"><div class="head"><h2>Simple pricing. No surprises.</h2><p>Start free. Upgrade when you're ready. Cancel anytime &mdash; no contracts.</p></div>
@@ -430,9 +378,6 @@ function openStory(av,title){const stories={'P':'<h3>Punsky\'s Boutique</h3><p c
 
 /* SUPPORT */
 function handleSupport(e){e.preventDefault();const name=e.target.querySelector('input[type="text"]').value;const email=e.target.querySelector('input[type="email"]').value;const subj=e.target.querySelectorAll('input[type="text"]')[1].value;const msg=e.target.querySelector('textarea').value;console.log('🔔 SUPPORT REQUEST RECEIVED');console.log('From:',email);console.log('Subject:',subj);console.log('Message:',msg);document.getElementById('supportOk').style.display='block';e.target.style.display='none';setTimeout(()=>{closeModal('supportModal');document.getElementById('supportOk').style.display='none';e.target.style.display='block';e.target.reset()},3000)}
-
-/* FAQ */
-function toggleFaq(el){el.classList.toggle('open')}
 </script>
 
 <!-- SIGNUP MODAL -->
