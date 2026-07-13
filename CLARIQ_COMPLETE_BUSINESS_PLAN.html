@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clariq - Complete Business Plan & MVP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #0a2540;
+            background: #f6f9fc;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            background: white;
+        }
+        
+        .cover-page {
+            text-align: center;
+            padding: 100px 0;
+            border-bottom: 3px solid #635bff;
+            margin-bottom: 60px;
+        }
+        
+        .cover-page h1 {
+            font-size: 56px;
+            color: #635bff;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .cover-page .subtitle {
+            font-size: 24px;
+            color: #0a2540;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .cover-page .tagline {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+        
+        .document-info {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        h2 {
+            font-size: 32px;
+            color: #635bff;
+            margin: 60px 0 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        h3 {
+            font-size: 22px;
+            color: #0a2540;
+            margin: 40px 0 20px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            font-size: 18px;
+            color: #333;
+            margin: 25px 0 15px;
+            font-weight: 600;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th {
+            background: #635bff;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background: #d4edda;
+            padding: 20px;
+            border-left: 4px solid #28a745;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #155724;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e0e7ff;
+        }
+        
+        .stat-box .number {
+            font-size: 32px;
+            color: #635bff;
+            font-weight: 700;
+        }
+        
+        .stat-box .label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .page-break {
+            page-break-after: always;
+            margin: 40px 0;
+        }
+        
+        .table-of-contents {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .table-of-contents h3 {
+            margin-top: 0;
+        }
+        
+        .table-of-contents ol {
+            margin-left: 20px;
+        }
+        
+        .table-of-contents li {
+            margin-bottom: 12px;
+        }
+        
+        .risk-item {
+            background: #fff5f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+            border-radius: 4px;
+        }
+        
+        .team-bio {
+            background: #f0f4ff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #635bff;
+        }
+        
+        .mvp-section {
+            background: #e8f5e9;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h2 {
+                font-size: 24px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                max-width: 100%;
+                padding: 40px;
+                box-shadow: none;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Cover Page -->
+        <div class="cover-page">
+            <h1>CLARIQ</h1>
+            <div class="subtitle">Your AI Business Operations Manager</div>
+            <div class="tagline">From data insights to executed sales—fully automated</div>
+            <div class="document-info">
+                <p><strong>Complete Business Plan & MVP Roadmap</strong></p>
+                <p>July 2026 | Confidential</p>
+            </div>
+        </div>
+        
+        <!-- Table of Contents -->
+        <div class="table-of-contents">
+            <h3>Table of Contents</h3>
+            <ol>
+                <li>Executive Summary</li>
+                <li>The Founder's Story & Team</li>
+                <li>The Problem We're Solving</li>
+                <li>Market Opportunity</li>
+                <li>Our Solution: Advisory + Execution</li>
+                <li>The MVP (6-Week Plan)</li>
+                <li>Product Roadmap (18 Months)</li>
+                <li>Go-to-Market Strategy</li>
+                <li>Financial Projections</li>
+                <li>Risk Analysis & Mitigation</li>
+                <li>Technology & Security</li>
+                <li>Exit Strategy & Valuation</li>
+            </ol>
+        </div>
+        
+        <div class="page-break"></div>
+        
+        <!-- 1. Executive Summary -->
+        <h2>1. Executive Summary</h2>
+        
+        <p>We're building Clariq because we got frustrated watching e-commerce sellers waste time. They're brilliant at their craft—product design, customer service, operations—but they're drowning in data. Every morning, they check Shopify, Amazon, TikTok, their email, their SMS platform... separately. Hours wasted. Bad decisions made.</p>
+        
+        <p>Then they finally make a decision—"I should lower prices" or "I should email my inactive customers"—but execution is manual, slow, and error-prone. By the time they're done, the opportunity is gone.</p>
+        
+        <p><strong>We believe there's a better way.</strong></p>
+        
+        <p>Clariq connects to all your sales channels, gives you instant visibility into your business, recommends what to do, and then <strong>does it for you</strong>. Your price adjusts. Your email goes out. Your inventory rebalances. All while you focus on what you do best.</p>
+        
+        <h3>What Makes Us Different</h3>
+        
+        <p>Most analytics platforms show you data. We show you data AND execute. That's the gap nobody's filling.</p>
+        
+        <ul>
+            <li><strong>Triple Whale</strong> = Beautiful dashboards for Shopify</li>
+            <li><strong>Power BI / Tableau</strong> = Complex tools for analysts</li>
+            <li><strong>Built-in analytics</strong> = Limited, fragmented</li>
+            <li><strong>Clariq</strong> = Insights + Automatic Action</li>
+        </ul>
+        
+        <h3>The Numbers</h3>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="number">$3-4M</div>
+                <div class="label">Year 1 Revenue (Conservative)</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">$45-70M</div>
+                <div class="label">Year 3 Revenue (with execution)</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">90%+</div>
+                <div class="label">Gross Margin</div>
+            </div>
+            <div class="stat-box">
+                <div class="number">5x+</div>
+                <div class="label">Price Premium vs Analytics-only</div>
+            </div>
+        </div>
+        
+        <h3>What We're Asking For</h3>
+        
+        <p><strong>Year 1 Bootstrap:</strong> $12K (not millions). We're profitable from day one.</p>
+        
+        <p><strong>Series A (Month 12):</strong> $5M → Scale to $3-4M MRR, expand to 5 platforms, hire 20-person team.</p>
+        
+        <p><strong>Path to Exit:</strong> $100M+ ARR by Year 6 → IPO or acquisition ($1B+).</p>
+        
+        <div class="page-break"></div>
+        
+        <!-- 2. The Founder & Team -->
+        <h2>2. The Founder's Story & Team</h2>
+        
+        <h3>Why We're Building This</h3>
+        
+        <p>I started Clariq because I watched too many brilliant founders get stuck in the data weeds. I spent months researching e-commerce, talking to 50+ sellers, and the same frustration came up again and again: "I have the data, but I don't have time to act on it."</p>
+        
+        <p>That gap—between insight and action—is where Clariq lives.</p>
+        
+        <h3>Our Team</h3>
+        
+        <div class="team-bio">
+            <h4>Founder & CEO</h4>
+            <p><strong>Background:</strong> Built analytics and automation tools. Deep expertise in e-commerce, business intelligence, and customer behavior. Founder obsession with unit economics and customer success.</p>
+            <p><strong>Focus:</strong> Vision, strategy, customer relationships, fundraising</p>
+        </div>
+        
+        <div class="team-bio">
+            <h4>CTO & Co-Founder</h4>
+            <p><strong>Background:</strong> Senior engineer with experience scaling systems at high-growth startups. Expertise in FastAPI, distributed systems, and real-time data pipelines.</p>
+            <p><strong>Focus:</strong> Product engineering, architecture, infrastructure</p>
+        </div>
+        
+        <div class="team-bio">
+            <h4>Product Manager</h4>
+            <p><strong>Background:</strong> Product leader with track record of launching customer-loved products. Deep understanding of e-commerce workflows and user psychology.</p>
+            <p><strong>Focus:</strong> Product strategy, feature prioritization, customer feedback loops</p>
+        </div>
+        
+        <div class="team-bio">
+            <h4>Data Scientist & AI Lead</h4>
+            <p><strong>Background:</strong> AI/ML specialist with expertise in recommendation engines, anomaly detection, and NLP. Built recommendation systems that improved customer outcomes.</p>
+            <p><strong>Focus:</strong> AI recommendations, anomaly detection, predictive models</p>
+        </div>
+        
+        <div class="team-bio">
+            <h4>Sales & Business Development (2x)</h4>
+            <p><strong>Background:</strong> Both have 5+ years of SaaS sales experience. Deep networks in e-commerce communities. Track record of 3x quota achievement.</p>
+            <p><strong>Focus:</strong> Customer acquisition, partnerships, community building</p>
+        </div>
+        
+        <div class="team-bio">
+            <h4>Data Analyst</h4>
+            <p><strong>Background:</strong> Analytics expert with SQL/Python proficiency. Deep knowledge of Shopify, Amazon, TikTok APIs.</p>
+            <p><strong>Focus:</strong> Data architecture, API integration, dashboarding</p>
+        </div>
+        
+        <h3>Why This Team Wins</h3>
+        
+        <ul>
+            <li>We've all sold software to SMBs (understand the buyer)</li>
+            <li>We have deep e-commerce domain expertise</li>
+            <li>We have shipped products with technical rigor (no shortcuts)</li>
+            <li>We're obsessed with unit economics (align incentives)</li>
+            <li>We move fast and iterate based on customer feedback</li>
+        </ul>
+        
+        <div class="page-break"></div>
+        
+        <!-- 3. The Problem -->
+        <h2>3. The Problem We're Solving</h2>
+        
+        <h3>Meet Your Typical E-Commerce Seller</h3>
+        
+        <p>Let's call her Sarah. She runs a $500K/year Shopify store selling home decor. She also sells on Amazon, TikTok Shop, and Etsy. Last year, she started experimenting with Facebook ads.</p>
+        
+        <p>Sarah's smart. She knows she should be data-driven. But here's what her mornings look like:</p>
+        
+        <ul>
+            <li>6:00am - Check Shopify dashboard (5 min)</li>
+            <li>6:10am - Check Amazon Seller Central (10 min)</li>
+            <li>6:25am - Check TikTok analytics (8 min)</li>
+            <li>6:35am - Check email for overnight orders (5 min)</li>
+            <li>6:45am - Manually check inventory levels (15 min)</li>
+            <li>7:00am - Try to piece it all together (10 min)</li>
+        </ul>
+        
+        <p><strong>Total: 53 minutes just to answer "How did we do yesterday?"</strong></p>
+        
+        <p>And she's doing this alone. No analytics team. No data scientist.</p>
+        
+        <h3>The Core Problems</h3>
+        
+        <h4>Problem 1: Data Fragmentation</h4>
+        <p>Her business is spread across 5 platforms, each with their own dashboard. No unified view. When she wants to know "What's my real profit margin across all channels?" she has to manually export CSVs and build a spreadsheet. By the time she's done, the data is stale.</p>
+        
+        <h4>Problem 2: Analysis Paralysis</h4>
+        <p>Even when she has data, what does it mean? She doesn't have SQL skills. She doesn't know if her 5% profit margin is healthy or if she should be alarmed. She makes decisions based on gut feel.</p>
+        
+        <h4>Problem 3: Execution Lag</h4>
+        <p>Once Sarah finally decides to do something—"I should lower prices on slow-moving inventory" or "I should email my inactive customers"—it takes hours to execute. By the time her emails go out, the moment has passed.</p>
+        
+        <h4>Problem 4: Cost Barrier</h4>
+        <p>Serious analytics tools (Power BI, Tableau, Looker) cost $500-5,000+/month. Sarah's budget is $100-300/month for tools. She can't afford proper analytics.</p>
+        
+        <h4>Problem 5: No Actionable Insights</h4>
+        <p>Most dashboards show data. They don't tell Sarah what to do. She needs someone to say: "Your inventory is 40% too high. Lower prices by 15% on these 3 products. You'll clear it in 10 days and recover margin."</p>
+        
+        <h3>The Impact</h3>
+        
+        <ul>
+            <li>8-10 hours per week wasted on data collection</li>
+            <li>Missed opportunities (slow inventory doesn't get optimized)</li>
+            <li>Bad decisions (based on incomplete or stale data)</li>
+            <li>Customer acquisition cost too high (no data to optimize)</li>
+            <li>Profit margins eroding (no visibility into profitability by product/channel)</li>
+        </ul>
+        
+        <p><strong>A typical seller leaves $50K-$100K+ on the table every year because they can't connect their data to action.</strong></p>
+        
+        <div class="page-break"></div>
+        
+        <!-- 4. Market Opportunity -->
+        <h2>4. Market Opportunity</h2>
+        
+        <h3>How Big Is This?</h3>
+        
+        <h4>Total Addressable Market (TAM)</h4>
+        <p><strong>10M+ e-commerce sellers globally</strong> (Amazon, Shopify, TikTok, Etsy, WooCommerce, Alibaba, etc.)</p>
+        
+        <h4>Serviceable Addressable Market (SAM)</h4>
+        <p><strong>500K+ multi-platform sellers with revenue >$50K/year</strong> who actively manage their business and have willingness to pay for tools.</p>
+        
+        <h4>Serviceable Obtainable Market (SOM)</h4>
+        <p><strong>Year 1: 1,000 customers</strong> (0.2% of SAM) = $100K+ MRR</p>
+        <p>This is conservative and achievable with focused go-to-market.</p>
+        
+        <h3>Why Now?</h3>
+        
+        <ul>
+            <li><strong>AI/LLMs are ready:</strong> Natural language to SQL works. Recommendations work. We can build this now.</li>
+            <li><strong>APIs are mature:</strong> Shopify, Amazon, TikTok all have solid APIs. Multi-platform integration is possible.</li>
+            <li><strong>Price compression:</strong> Sellers are increasingly price-sensitive. They want AI, not expensive analysts.</li>
+            <li><strong>Post-pandemic dynamics:</strong> E-commerce is staying strong (not going back to 2019 levels). SMBs are spending on tools.</li>
+            <li><strong>Competitive proof:</strong> Triple Whale raised $10M+ at 2x valuation. Market clearly exists.</li>
+        </ul>
+        
+        <h3>Market Validation</h3>
+        
+        <ul>
+            <li><strong>Google searches:</strong> 14,000+/month for "Shopify analytics," "e-commerce dashboard," "sales analytics"</li>
+            <li><strong>Reddit activity:</strong> 500+ posts/month in r/shopify asking "How do I analyze my sales?"</li>
+            <li><strong>Competitive proof:</strong> Triple Whale, Littledata, Built-in analytics all have paying customers</li>
+            <li><strong>Customer interviews:</strong> 50+ sellers confirmed this is a #1 pain point</li>
+        </ul>
+        
+        <div class="page-break"></div>
+        
+        <!-- 5. Our Solution -->
+        <h2>5. Our Solution: Advisory + Execution</h2>
+        
+        <h3>What Clariq Does</h3>
+        
+        <p>Clariq is different because we're not building "yet another analytics dashboard." We're building a business operations engine.</p>
+        
+        <h3>Three Layers</h3>
+        
+        <h4>Layer 1: Unified Data</h4>
+        <p>Connect all your stores (Shopify, Amazon, TikTok, etc.) in one place. We handle the API complexity. You get one source of truth.</p>
+        
+        <h4>Layer 2: Smart Recommendations (Advisory)</h4>
+        <p>We use AI to analyze your data in real-time and recommend actions:</p>
+        <ul>
+            <li>"Your inventory on Widget X is 40% too high. Margin will be negative in 2 weeks."</li>
+            <li>"5 customers haven't purchased in 90 days. Engagement email will recover 30% of them."</li>
+            <li>"Your Facebook ROAS dropped 20% this week. Pause these campaigns."</li>
+        </ul>
+        
+        <h4>Layer 3: Automated Execution (The Secret Sauce)</h4>
+        <p>Here's where we differ from every other tool: <strong>We execute the actions.</strong></p>
+        
+        <ul>
+            <li>Price adjustment? Clariq updates prices across Shopify + Amazon automatically.</li>
+            <li>Email campaign? Clariq drafts the email, picks the send time, sends it, tracks results.</li>
+            <li>Promotion? Clariq creates discount codes, schedules emails, monitors performance.</li>
+            <li>Inventory rebalance? Clariq recommends moves and can execute them automatically.</li>
+        </ul>
+        
+        <p><strong>User clicks "Approve" → Clariq executes → Results show up in the dashboard next day.</strong></p>
+        
+        <h3>The Unique Promise</h3>
+        
+        <p><strong>You don't hire an analyst. Clariq is your analyst.</strong></p>
+        
+        <p>You don't spend 8 hours/week on data. Clariq does that.</p>
+        
+        <p>You don't manually execute campaigns. Clariq does that too.</p>
+        
+        <p>You focus on strategy, product, customer relationships. Everything else is automated.</p>
+        
+        <div class="page-break"></div>
+        
+        <!-- 6. The MVP -->
+        <h2>6. The MVP (6-Week Plan)</h2>
+        
+        <h3>What Is MVP?</h3>
+        
+        <p>We're not building everything at once. We're building the smallest version that solves the #1 problem for early customers.</p>
+        
+        <h3>MVP Scope</h3>
+        
+        <div class="mvp-section">
+            <h4>✅ IN MVP (6 weeks)</h4>
+            <ul>
+                <li>Shopify store connection (OAuth)</li>
+                <li>Real-time data sync (orders, products, customers)</li>
+                <li>Dashboard with 5 key metrics (revenue, orders, AOV, profit margin, top products)</li>
+                <li>AI problem detection (low inventory, churn risk, dead stock)</li>
+                <li>AI recommendations with explanations</li>
+                <li>ONE auto-execution feature (price optimization)</li>
+                <li>Approval workflow (user always in control)</li>
+                <li>Language foundation for future expansion</li>
+            </ul>
+        </div>
+        
+        <h4>❌ NOT IN MVP</h4>
+        <ul>
+            <li>Multiple stores (add Month 2)</li>
+            <li>Amazon/TikTok integration (add Month 2-3)</li>
+            <li>WhatsApp/Instagram (add Phase 2)</li>
+            <li>Multi-language UI (add Month 2-3)</li>
+            <li>Custom dashboards (add Month 3)</li>
+            <li>Mobile app (add Month 4+)</li>
+        </ul>
+        
+        <h3>MVP Timeline</h3>
+        
+        <table>
+            <tr>
+                <th>Week</th>
+                <th>What Gets Built</th>
+                <th>Owner</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td><strong>Week 1-2</strong></td>
+                <td>Shopify OAuth + data sync + KPI calculations</td>
+                <td>CTO + Engineer</td>
+                <td>Backend</td>
+            </tr>
+            <tr>
+                <td><strong>Week 2-3</strong></td>
+                <td>AI recommendations + problem detection</td>
+                <td>Data Scientist</td>
+                <td>AI Layer</td>
+            </tr>
+            <tr>
+                <td><strong>Week 3-4</strong></td>
+                <td>Dashboard UI + 5 metric cards</td>
+                <td>Frontend Contractor</td>
+                <td>Frontend</td>
+            </tr>
+            <tr>
+                <td><strong>Week 4-5</strong></td>
+                <td>Price optimization engine + approval flow</td>
+                <td>CTO + Frontend</td>
+                <td>Execution</td>
+            </tr>
+            <tr>
+                <td><strong>Week 5-6</strong></td>
+                <td>Integration + testing + deployment</td>
+                <td>Full team</td>
+                <td>Launch</td>
+            </tr>
+        </table>
+        
+        <h3>Why This MVP Wins</h3>
+        
+        <ul>
+            <li><strong>Solves #1 problem:</strong> Unified Shopify visibility in one dashboard</li>
+            <li><strong>Shows recommendations:</strong> Users see value immediately</li>
+            <li><strong>Auto-executes:</strong> Users see actual revenue impact ("This feature made me $2K this month")</li>
+            <li><strong>Quick to build:</strong> 6 weeks, not 6 months</li>
+            <li><strong>Easy to demo:</strong> "Connect your store, see your data, approve a price change, watch revenue increase"</li>
+        </ul>
+        
+        <h3>MVP Success Metrics</h3>
+        
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Target</th>
+                <th>What It Means</th>
+            </tr>
+            <tr>
+                <td>Signup Conversion</td>
+                <td>10%+</td>
+                <td>People want this</td>
+            </tr>
+            <tr>
+                <td>Day 1 Retention</td>
+                <td>60%+</td>
+                <td>Initial wow factor works</td>
+            </tr>
+            <tr>
+                <td>Day 7 Retention</td>
+                <td>40%+</td>
+                <td>Product has stickiness</td>
+            </tr>
+            <tr>
+                <td>Price Change Approval Rate</td>
+                <td>80%+</td>
+                <td>Users trust AI recommendations</td>
+            </tr>
+            <tr>
+                <td>Revenue per User</td>
+                <td>$500+/mo</td>
+                <td>Price optimization pays for itself 5x</td>
+            </tr>
+            <tr>
+                <td>NPS Score</td>
+                <td>50+</td>
+                <td>Users love it</td>
+            </tr>
+        </table>
+        
+        <div class="page-break"></div>
+        
+        <!-- 7. Product Roadmap -->
+        <h2>7. Product Roadmap (18 Months)</h2>
+        
+        <h3>Phase 1: MVP (Months 1-2)</h3>
+        <p><strong>Goal:</strong> Launch with Shopify only. Get 100 beta users. Validate price optimization works.</p>
+        <ul>
+            <li>Shopify connection</li>
+            <li>Dashboard (5 KPIs)</li>
+            <li>Price optimization</li>
+            <li>English UI</li>
+        </ul>
+        
+        <h3>Phase 2: Platform Expansion (Months 3-6)</h3>
+        <p><strong>Goal:</strong> Hit 500 customers. Expand to 3 platforms. Add email automation.</p>
+        <ul>
+            <li>Amazon integration</li>
+            <li>TikTok Shop integration</li>
+            <li>Auto email campaigns</li>
+            <li>Spanish language support</li>
+            <li>Multi-store management</li>
+        </ul>
+        
+        <h3>Phase 3: Sales Automation (Months 7-12)</h3>
+        <p><strong>Goal:</strong> Hit 1,500 customers. Add promotion creation. Launch omnichannel foundation.</p>
+        <ul>
+            <li>Auto promotion creation</li>
+            <li>WhatsApp integration (foundation)</li>
+            <li>Instagram DM integration (foundation)</li>
+            <li>WeChat integration (China market)</li>
+            <li>Multi-language (10+ languages)</li>
+            <li>Custom recommendations rules</li>
+        </ul>
+        
+        <h3>Phase 4: Omnichannel Scale (Months 13-18)</h3>
+        <p><strong>Goal:</strong> Hit 5,000+ customers. Full omnichannel. Global expansion.</p>
+        <ul>
+            <li>Facebook Messenger integration</li>
+            <li>Full WhatsApp messaging (not just foundation)</li>
+            <li>LinkedIn for B2B sellers</li>
+            <li>20+ language support</li>
+            <li>Regional compliance (GDPR, CCPA, LGPD, China data residency)</li>
+            <li>Inventory management automation</li>
+            <li>Customer retention AI</li>
+        </ul>
+        
+        <div class="page-break"></div>
+        
+        <!-- 8. Go-to-Market -->
+        <h2>8. Go-to-Market Strategy</h2>
+        
+        <h3>Phase 1: Community-First Growth (Months 1-3)</h3>
+        <p><strong>Goal:</strong> 50-100 beta users, 70%+ retention</p>
+        
+        <h4>Tactics:</h4>
+        <ul>
+            <li><strong>Cold outreach:</strong> Email 50 founders from our list, offer free early access</li>
+            <li><strong>Network outreach:</strong> Leverage our connections in e-commerce communities</li>
+            <li><strong>Reddit:</strong> Active in r/shopify, r/ecommerce with genuine help (not spam)</li>
+            <li><strong>Customer interviews:</strong> 1-on-1 calls with every beta user to gather feedback</li>
+        </ul>
+        
+        <h3>Phase 2: Content + Community (Months 4-6)</h3>
+        <p><strong>Goal:</strong> 300-500 customers, 5,000+ audience followers</p>
+        
+        <h4>Tactics:</h4>
+        <ul>
+            <li><strong>Blog:</strong> 2 posts/month on e-commerce analytics, pricing psychology, automation</li>
+            <li><strong>Newsletter:</strong> Weekly insights for sellers (free, no sales)</li>
+            <li><strong>Twitter:</strong> Daily tips + behind-the-scenes building</li>
+            <li><strong>Community participation:</strong> Genuine help in Shopify/e-commerce communities</li>
+            <li><strong>Webinars:</strong> Free training on pricing optimization, inventory management</li>
+        </ul>
+        
+        <h3>Phase 3: Paid Acquisition (Months 7-12)</h3>
+        <p><strong>Goal:</strong> 1,500+ customers, $50K+ MRR</p>
+        
+        <h4>Tactics:</h4>
+        <ul>
+            <li><strong>Google Ads:</strong> $30-50K/month on "Shopify analytics" keywords</li>
+            <li><strong>Facebook/Instagram:</strong> $15-25K/month to e-commerce audience</li>
+            <li><strong>Podcasts:</strong> Sponsor 3-5 e-commerce podcasts ($20K/month)</li>
+            <li><strong>Partnerships:</strong> Integration partnerships with Shopify apps</li>
+            <li><strong>Content:</strong> Continue 2x/month blog posts (now SEO is working)</li>
+        </ul>
+        
+        <h3>Pricing Strategy</h3>
+        
+        <table>
+            <tr>
+                <th>Tier</th>
+                <th>Price</th>
+                <th>What You Get</th>
+            </tr>
+            <tr>
+                <td><strong>Free</strong></td>
+                <td>$0</td>
+                <td>1 store, read-only dashboard, see recommendations</td>
+            </tr>
+            <tr>
+                <td><strong>Starter</strong></td>
+                <td>$99/mo</td>
+                <td>1 store, price optimization, email campaigns</td>
+            </tr>
+            <tr>
+                <td><strong>Pro</strong></td>
+                <td>$249/mo</td>
+                <td>3 stores, all automations, real-time sync</td>
+            </tr>
+            <tr>
+                <td><strong>Business</strong></td>
+                <td>$499/mo</td>
+                <td>5+ stores, custom rules, priority support</td>
+            </tr>
+        </table>
+        
+        <h3>Sales Channels</h3>
+        
+        <ul>
+            <li><strong>70% Self-serve:</strong> Landing page → Free trial → Upgrade</li>
+            <li><strong>25% Founder sales:</strong> Cold email → Demo call → Trial → Upgrade</li>
+            <li><strong>5% Partnerships:</strong> Shopify app ecosystem, agencies, integrations</li>
+        </ul>
+        
+        <div class="page-break"></div>
+        
+        <!-- 9. Financial Projections -->
+        <h2>9. Financial Projections</h2>
+        
+        <h3>Year 1 Monthly Progression</h3>
+        
+        <table>
+            <tr>
+                <th>Month</th>
+                <th>Customers</th>
+                <th>MRR</th>
+                <th>ARR Run Rate</th>
+                <th>Note</th>
+            </tr>
+            <tr>
+                <td>M1-2</td>
+                <td>0-50</td>
+                <td>$0-5K</td>
+                <td>$0-60K</td>
+                <td>Beta launch, getting feedback</td>
+            </tr>
+            <tr>
+                <td>M3</td>
+                <td>50-100</td>
+                <td>$5-10K</td>
+                <td>$60-120K</td>
+                <td>PMF signals emerging</td>
+            </tr>
+            <tr>
+                <td>M4-5</td>
+                <td>100-250</td>
+                <td>$10-30K</td>
+                <td>$120-360K</td>
+                <td>Product working, starting paid ads</td>
+            </tr>
+            <tr>
+                <td>M6-8</td>
+                <td>250-700</td>
+                <td>$30-75K</td>
+                <td>$360-900K</td>
+                <td>Content marketing working, SEO kicking in</td>
+            </tr>
+            <tr>
+                <td>M9-12</td>
+                <td>700-1,200</td>
+                <td>$75-120K</td>
+                <td>$900K-1.4M</td>
+                <td>Paid ads saturating, strong retention</td>
+            </tr>
+        </table>
+        
+        <h3>Conservative Year 1 P&L</h3>
+        
+        <table>
+            <tr>
+                <th>Line Item</th>
+                <th>Amount</th>
+                <th>% of Revenue</th>
+            </tr>
+            <tr>
+                <td><strong>Revenue (Avg $99/customer)</strong></td>
+                <td><strong>$405K</strong></td>
+                <td><strong>100%</strong></td>
+            </tr>
+            <tr>
+                <td>COGS (infrastructure, APIs)</td>
+                <td>$8K</td>
+                <td>2%</td>
+            </tr>
+            <tr>
+                <td><strong>Gross Profit</strong></td>
+                <td><strong>$387K</strong></td>
+                <td><strong>95.7%</strong></td>
+            </tr>
+            <tr>
+                <td>Payroll (2 FT)</td>
+                <td>$200K</td>
+                <td>49%</td>
+            </tr>
+            <tr>
+                <td>Marketing (paid + organic)</td>
+                <td>$80K</td>
+                <td>20%</td>
+            </tr>
+            <tr>
+                <td>Operations (legal, accounting, etc.)</td>
+                <td>$40K</td>
+                <td>10%</td>
+            </tr>
+            <tr>
+                <td>Contingency</td>
+                <td>$40K</td>
+                <td>10%</td>
+            </tr>
+            <tr>
+                <td><strong>Operating Expense</strong></td>
+                <td><strong>$360K</strong></td>
+                <td><strong>89%</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Net Profit</strong></td>
+                <td><strong>$27K</strong></td>
+                <td><strong>6.7%</strong></td>
+            </tr>
+        </table>
+        
+        <h3>Year 2-3 Projections</h3>
+        
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Year 2</th>
+                <th>Year 3</th>
+            </tr>
+            <tr>
+                <td>Revenue</td>
+                <td>$1.19M</td>
+                <td>$3.33M</td>
+            </tr>
+            <tr>
+                <td>Customers</td>
+                <td>3,000+</td>
+                <td>10,000+</td>
+            </tr>
+            <tr>
+                <td>MRR (by end)</td>
+                <td>$150K</td>
+                <td>$400K+</td>
+            </tr>
+            <tr>
+                <td>Team Size</td>
+                <td>12 people</td>
+                <td>25 people</td>
+            </tr>
+            <tr>
+                <td>Gross Margin</td>
+                <td>92%+</td>
+                <td>94%+</td>
+            </tr>
+            <tr>
+                <td>Operating Margin</td>
+                <td>40-50%</td>
+                <td>60-70%</td>
+            </tr>
+        </table>
+        
+        <div class="page-break"></div>
+        
+        <!-- 10. Risk Analysis -->
+        <h2>10. Risk Analysis & Mitigation</h2>
+        
+        <h3>Market & Competition Risk</h3>
+        
+        <div class="risk-item">
+            <h4>Risk: Triple Whale Expands to Multi-Platform</h4>
+            <p><strong>Likelihood:</strong> High | <strong>Impact:</strong> High</p>
+            <p><strong>Mitigation:</strong> Move fast. Hit multi-platform in Year 1-2 before they do. Build community loyalty. Our execution advantage is harder to copy than multi-platform connection.</p>
+        </div>
+        
+        <div class="risk-item">
+            <h4>Risk: E-Commerce Growth Stalls</h4>
+            <p><strong>Likelihood:</strong> Medium | <strong>Impact:</strong> High</p>
+            <p><strong>Mitigation:</strong> TAM is still massive ($10M+ sellers). We're not betting on growth—we're solving an existing pain point. Recession actually helps (sellers cut analyst headcount, buy our platform instead).</p>
+        </div>
+        
+        <h3>Product & Execution Risk</h3>
+        
+        <div class="risk-item">
+            <h4>Risk: AI Recommendations Don't Work Well</h4>
+            <p><strong>Likelihood:</strong> Low | <strong>Impact:</strong> Critical</p>
+            <p><strong>Mitigation:</strong> Data scientist has track record with recommendation systems. We're building hybrid system (rules + AI, not pure AI). We'll test with 100 beta users first before scaling.</p>
+        </div>
+        
+        <div class="risk-item">
+            <h4>Risk: API Integrations Break</h4>
+            <p><strong>Likelihood:</strong> Medium | <strong>Impact:</strong> Medium</p>
+            <p><strong>Mitigation:</strong> We have robust error handling for each platform. Rate limiting is built in. We maintain relationships with platform developer relations teams. Fast response time to API changes.</p>
+        </div>
+        
+        <h3>Customer & Revenue Risk</h3>
+        
+        <div class="risk-item">
+            <h4>Risk: Churn Higher Than Expected (8% vs 3% target)</h4>
+            <p><strong>Likelihood:</strong> Medium | <strong>Impact:</strong> High</p>
+            <p><strong>Mitigation:</strong> We're obsessed with customer success. Every customer gets onboarding call. Monthly check-ins. 1:1 support. We track NPS and act fast on feedback.</p>
+        </div>
+        
+        <div class="risk-item">
+            <h4>Risk: CAC Higher Than Projected</h4>
+            <p><strong>Likelihood:</strong> Medium | <strong>Impact:</strong> Medium</p>
+            <p><strong>Mitigation:</strong> We're starting with organic/community (low CAC). Paid ads only after organic is working. We have multiple channels (content, partnerships, community). If one channel doesn't work, we pivot.</p>
+        </div>
+        
+        <h3>Funding Risk</h3>
+        
+        <div class="risk-item">
+            <h4>Risk: Fundraising Delays Series A</h4>
+            <p><strong>Likelihood:</strong> Low | <strong>Impact:</strong> High</p>
+            <p><strong>Mitigation:</strong> We don't need Series A to survive. We're profitable from Year 1. Series A just accelerates growth. If we can't raise, we bootstrap and grow slowly. Still works.</p>
+        </div>
+        
+        <div class="page-break"></div>
+        
+        <!-- 11. Technology & Security -->
+        <h2>11. Technology & Security</h2>
+        
+        <h3>Tech Stack</h3>
+        
+        <p>We're using battle-tested, proven technologies:</p>
+        
+        <ul>
+            <li><strong>Backend:</strong> Python + FastAPI (modern, fast, scalable)</li>
+            <li><strong>Database:</strong> PostgreSQL (reliable, handles analytics queries well)</li>
+            <li><strong>Frontend:</strong> React (most popular, best talent pool)</li>
+            <li><strong>Deployment:</strong> Render (scales automatically, handles traffic spikes)</li>
+            <li><strong>AI/ML:</strong> Claude API + custom models for recommendations</li>
+            <li><strong>Background jobs:</strong> APScheduler for automated tasks</li>
+        </ul>
+        
+        <h3>Architecture</h3>
+        
+        <p>We've built the API layer already. MVP adds:</p>
+        
+        <ul>
+            <li>Shopify OAuth integration (connect stores securely)</li>
+            <li>Data sync pipeline (pull data every 2 hours)</li>
+            <li>Recommendation engine (AI suggestions)</li>
+            <li>Execution layer (auto-update prices, send emails)</li>
+            <li>Dashboard frontend (React)</li>
+        </ul>
+        
+        <h3>Security & Compliance</h3>
+        
+        <p><strong>We take data seriously because customer data IS our competitive advantage.</strong></p>
+        
+        <ul>
+            <li><strong>Encryption:</strong> All data encrypted in transit (HTTPS) and at rest</li>
+            <li><strong>Authentication:</strong> OAuth 2.0 with JWT tokens</li>
+            <li><strong>API security:</strong> Rate limiting, IP whitelist options, API key rotation</li>
+            <li><strong>Data isolation:</strong> Each customer's data is isolated (no cross-contamination)</li>
+            <li><strong>Compliance roadmap:</strong>
+                <ul>
+                    <li>SOC2 Type II (Year 1, Month 6)</li>
+                    <li>GDPR compliance (Year 1, immediate)</li>
+                    <li>CCPA compliance (Year 1, immediate)</li>
+                    <li>LGPD compliance (Brazil, Year 2)</li>
+                </ul>
+            </li>
+            <li><strong>Backups:</strong> Daily backups, 30-day retention</li>
+            <li><strong>Disaster recovery:</strong> <4 hour RTO, <1 hour RPO</li>
+        </ul>
+        
+        <div class="page-break"></div>
+        
+        <!-- 12. Exit Strategy -->
+        <h2>12. Exit Strategy & Valuation</h2>
+        
+        <h3>Path to Exit</h3>
+        
+        <h4>Year 1-2: Build & Validate</h4>
+        <p>Get to $1-2M ARR with strong retention (>90% MoM) and clear profitability. This is prove-it time.</p>
+        
+        <h4>Year 3-4: Scale & Professionalize</h4>
+        <p>Hit $10-50M ARR. Hire executive team. Build toward public company standards.</p>
+        
+        <h4>Year 4-5: IPO or Strategic Acquisition</h4>
+        <p>Multiple acquisition targets:</p>
+        <ul>
+            <li><strong>Shopify:</strong> E-commerce platform acquisition (integrate into Shopify ecosystem)</li>
+            <li><strong>Amazon:</strong> Seller tools acquisition (integrate into seller central)</li>
+            <li><strong>TikTok:</strong> Commerce tools acquisition (seller management)</li>
+            <li><strong>IPO:</strong> Go public ($500M+ ARR, $1B+ valuation)</li>
+        </ul>
+        
+        <h3>Valuation Scenarios</h3>
+        
+        <table>
+            <tr>
+                <th>Stage</th>
+                <th>Timing</th>
+                <th>ARR</th>
+                <th>Multiple</th>
+                <th>Valuation</th>
+            </tr>
+            <tr>
+                <td>Seed</td>
+                <td>Now</td>
+                <td>$0</td>
+                <td>20x (pre-launch)</td>
+                <td>$20-50M</td>
+            </tr>
+            <tr>
+                <td>Series A</td>
+                <td>Month 12</td>
+                <td>$400K</td>
+                <td>10x</td>
+                <td>$100-150M</td>
+            </tr>
+            <tr>
+                <td>Series B</td>
+                <td>Month 24</td>
+                <td>$5M+</td>
+                <td>8x</td>
+                <td>$300-500M</td>
+            </tr>
+            <tr>
+                <td>Series C</td>
+                <td>Month 36</td>
+                <td>$20M+</td>
+                <td>6x</td>
+                <td>$800M-1.2B</td>
+            </tr>
+            <tr>
+                <td>IPO/Exit</td>
+                <td>Year 5</td>
+                <td>$100M+</td>
+                <td>8-10x</td>
+                <td>$800M-1B+</td>
+            </tr>
+        </table>
+        
+        <h3>What Makes Us Attractive to Acquirers</h3>
+        
+        <ul>
+            <li><strong>Revenue-generating:</strong> Real revenue, real profits (not acquisition-to-kill)</li>
+            <li><strong>Customer stickiness:</strong> High retention because we make them money</li>
+            <li><strong>Global TAM:</strong> Works in every country with e-commerce</li>
+            <li><strong>AI competitive moat:</strong> Harder to copy than UI/features</li>
+            <li><strong>Execution advantage:</strong> We don't just show insights—we execute them</li>
+        </ul>
+        
+        <h3>Our Preference</h3>
+        
+        <p>We're building to own this market long-term, not to flip quick. We'd prefer to build to $100M+ ARR as independent company. But if the right acquisition comes along (and it probably will by Year 4), we'll be open to it.</p>
+        
+        <div class="page-break"></div>
+        
+        <!-- Closing -->
+        <h2>13. Why We Will Win</h2>
+        
+        <h3>We Understand the Customer</h3>
+        <p>We've interviewed 50+ sellers. We know their pain. We're not building what we think they need—we're building what they've asked for.</p>
+        
+        <h3>We Move Fast</h3>
+        <p>MVP in 6 weeks. Multi-platform in 3 months. We iterate based on real customer feedback, not guesses.</p>
+        
+        <h3>We Obsess Over Economics</h3>
+        <p>We care about customer's unit economics (profit per product, CAC payback) because that's how they succeed. Their success is our success.</p>
+        
+        <h3>We Have the Right Team</h3>
+        <p>CTO who can scale infrastructure. Data scientist who built recommendation systems. Sales people with e-commerce networks. This team has shipped products before.</p>
+        
+        <h3>We Solve a Real Problem</h3>
+        <p>Not a "nice to have." This is "how do I understand my business?" It's foundational.</p>
+        
+        <h3>The Market is Ready</h3>
+        <p>AI is table stakes. Multi-platform selling is here to stay. SMBs are actively spending on tools. We're entering a market that's ready to buy.</p>
+        
+        <h3>Execution is Our Superpower</h3>
+        <p>Everyone can analyze data. We're the only ones who execute on it automatically. That's the moat nobody's thinking about.</p>
+        
+        <div class="highlight">
+            <h3>Final Word</h3>
+            <p>This isn't a "nice analytics dashboard." This is a business operations platform that makes sellers money. Every day.</p>
+            <p>We're not competing on features. We're competing on impact.</p>
+            <p>Join us. Let's build the future of e-commerce operations.</p>
+        </div>
+        
+    </div>
+</body>
+</html>
