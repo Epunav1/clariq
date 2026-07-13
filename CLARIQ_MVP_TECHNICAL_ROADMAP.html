@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clariq MVP Technical Roadmap - 6-Week Implementation Plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            line-height: 1.8;
+            color: #0a2540;
+            background: #f6f9fc;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #635bff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+        
+        h2 {
+            color: #635bff;
+            font-size: 1.8em;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #635bff;
+        }
+        
+        h3 {
+            color: #0a2540;
+            font-size: 1.3em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .intro-box {
+            background: #f0f4ff;
+            border-left: 4px solid #635bff;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        
+        .intro-box p {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+        
+        .intro-box strong {
+            color: #635bff;
+        }
+        
+        .week-block {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 25px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .week-block:hover {
+            border-color: #635bff;
+            box-shadow: 0 4px 12px rgba(99, 91, 255, 0.15);
+        }
+        
+        .week-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .week-number {
+            background: #635bff;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        
+        .week-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #0a2540;
+        }
+        
+        .week-content {
+            margin-left: 70px;
+        }
+        
+        .deliverable {
+            background: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 3px solid #635bff;
+            border-radius: 3px;
+        }
+        
+        .deliverable-title {
+            font-weight: 600;
+            color: #635bff;
+            margin-bottom: 5px;
+        }
+        
+        .deliverable-desc {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .tech-spec {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+        
+        .team-assignment {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 3px solid #0a2540;
+        }
+        
+        .team-role {
+            font-weight: 600;
+            color: #0a2540;
+            display: inline-block;
+            min-width: 120px;
+        }
+        
+        .checkmark {
+            color: #00c853;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .warning {
+            color: #ff6b00;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        ul li {
+            margin: 8px 0;
+        }
+        
+        .architecture-box {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .architecture-layer {
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-left: 4px solid #635bff;
+            border-radius: 3px;
+        }
+        
+        .layer-name {
+            font-weight: 700;
+            color: #635bff;
+            margin-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th {
+            background: #635bff;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .success-metric {
+            background: #e8f5e9;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 3px solid #00c853;
+            border-radius: 3px;
+        }
+        
+        .metric-label {
+            font-weight: 600;
+            color: #1b5e20;
+        }
+        
+        .metric-value {
+            color: #2e7d32;
+            font-size: 0.95em;
+        }
+        
+        .risk-box {
+            background: #ffebee;
+            border-left: 3px solid #c62828;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        
+        .risk-title {
+            font-weight: 600;
+            color: #c62828;
+            margin-bottom: 5px;
+        }
+        
+        .risk-mitigation {
+            color: #d32f2f;
+            font-size: 0.95em;
+        }
+        
+        .note {
+            background: #fff3e0;
+            border-left: 3px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        
+        .note-label {
+            font-weight: 600;
+            color: #e65100;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .print-friendly {
+            page-break-inside: avoid;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            h2 {
+                font-size: 1.3em;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Clariq MVP Technical Roadmap</h1>
+        <div class="subtitle">
+            Building the Predictive Revenue Operating System<br>
+            6-Week Implementation Plan (May - June 2026)
+        </div>
+        
+        <div class="intro-box">
+            <p><strong>What we're building:</strong> An AI engine that predicts what's happening in the market 12+ hours ahead of competitors, then automatically executes the perfect response to maximize seller revenue.</p>
+            <p><strong>Why it matters:</strong> Most tools show data. Clariq makes money. Every seller should make $2-5K extra per month from our predictive execution.</p>
+            <p><strong>The goal:</strong> 50 beta users by end of Week 6. Each user should see measurable revenue impact ($500-1000 minimum) from predictive automation.</p>
+        </div>
+
+        <h2>📋 The Big Picture: System Architecture</h2>
+        
+        <div class="architecture-box">
+            <p style="margin-bottom: 20px;">Clariq is built in 4 interconnected layers. Each week focuses on one layer:</p>
+            
+            <div class="architecture-layer">
+                <div class="layer-name">Layer 1: Data Ingestion & Real-Time Sync</div>
+                <p>Pulls Shopify data 24/7. Tracks every product, order, customer, price change. We collect data; competitors react to it. (Week 1-2)</p>
+            </div>
+            
+            <div class="architecture-layer">
+                <div class="layer-name">Layer 2: Market Intelligence Network</div>
+                <p>Aggregate anonymous data from all Clariq sellers to spot patterns. When 50 sellers in a category make moves, we detect it and alert YOU before competitors do. (Week 2-3)</p>
+            </div>
+            
+            <div class="architecture-layer">
+                <div class="layer-name">Layer 3: Predictive AI Engine</div>
+                <p>ML models predict: price war incoming, demand surge, inventory aging, churn risk. Predictions are 12+ hours ahead of market. (Week 3-4)</p>
+            </div>
+            
+            <div class="architecture-layer">
+                <div class="layer-name">Layer 4: Autonomous Execution Engine</div>
+                <p>Once predicted, Clariq auto-executes: price updates, campaigns, emails, promotions. User approves first 10 times, then fully autonomous. (Week 4-6)</p>
+            </div>
+        </div>
+
+        <h2>📅 Week-by-Week Breakdown</h2>
+
+        <div class="week-block print-friendly">
+            <div class="week-header">
+                <div class="week-number">1</div>
+                <div class="week-title">Foundation: Real-Time Data Ingestion</div>
+            </div>
+            <div class="week-content">
+                <p style="margin-bottom: 20px; font-weight: 600;">Goal: Build a real-time Shopify data pipeline that never sleeps</p>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Shopify OAuth Flow (Improved)</div>
+                    <div class="deliverable-desc">
+                        - Add "Products", "Orders", "Customers" permission scopes (not just basic auth)<br>
+                        - Store access token encrypted in database<br>
+                        - Build token refresh mechanism (tokens expire every 24hrs)<br>
+                        - Test with 3 real Shopify stores
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Real-Time Webhook Setup</div>
+                    <div class="deliverable-desc">
+                        - Listen to: product updates, price changes, order creation, inventory changes<br>
+                        - Store webhook events in queue (Redis or Celery)<br>
+                        - Don't process immediately (we'll batch process)<br>
+                        - Log every event for debugging
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Data Models (PostgreSQL Schema)</div>
+                    <div class="deliverable-desc">
+                        Create tables for: Products, Prices, Orders, Customers, InventoryChanges<br>
+                        Each row includes timestamp (critical for predictions)
+                    </div>
+                </div>
+                
+                <div class="tech-spec">
+-- Key tables needed:
+CREATE TABLE products (
+  id UUID PRIMARY KEY,
+  store_id UUID,
+  shopify_id VARCHAR,
+  name VARCHAR,
+  current_price DECIMAL,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
+
+CREATE TABLE price_history (
+  id UUID PRIMARY KEY,
+  product_id UUID,
+  old_price DECIMAL,
+  new_price DECIMAL,
+  changed_by VARCHAR, -- 'user' or 'clariq'
+  reason VARCHAR,
+  created_at TIMESTAMP
+);
+
+CREATE TABLE orders (
+  id UUID PRIMARY KEY,
+  store_id UUID,
+  customer_id UUID,
+  total_revenue DECIMAL,
+  items_count INT,
+  created_at TIMESTAMP
+);
+                </div>
+                
+                <div class="team-assignment">
+                    <span class="team-role">CTO/Lead Dev:</span> Build Shopify API integration from scratch. This is mission-critical.<br>
+                    <span class="team-role">Full-Stack:</span> Database schema + migration scripts<br>
+                    <span class="team-role">DevOps:</span> Set up Redis for event queue (if not already done)
+                </div>
+                
+                <div class="note">
+                    <span class="note-label">⚠️ Important Note:</span>
+                    Don't try to build everything in Week 1. Focus ONLY on: OAuth → Webhooks → Store Raw Data. If data isn't flowing reliably, everything else breaks.
+                </div>
+                
+                <div class="success-metric">
+                    <span class="metric-label">✓ Success Criteria:</span><br>
+                    <span class="metric-value">
+                        - Data flowing from 3 test stores every 10 seconds<br>
+                        - Zero missed webhook events (log and verify)<br>
+                        - Database has 1000+ historical price changes<br>
+                        - Latency from Shopify change to database: <2 seconds
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-block print-friendly">
+            <div class="week-header">
+                <div class="week-number">2</div>
+                <div class="week-title">Market Intelligence: The Collective Brain</div>
+            </div>
+            <div class="week-content">
+                <p style="margin-bottom: 20px; font-weight: 600;">Goal: Build the network effect—aggregate all seller data to see patterns no individual can</p>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Anonymous Data Aggregation Pipeline</div>
+                    <div class="deliverable-desc">
+                        - Create aggregated tables (no store names, just anonymized data)<br>
+                        - By hour: "In category X, average price change was -5%, 200 products changed"<br>
+                        - Track patterns: discounts, bundles, seasonal shifts<br>
+                        - Privacy first: No way to identify individual sellers
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Competitor Price Tracking (Simulated)</div>
+                    <div class="deliverable-desc">
+                        - For MVP: Use Clariq's own stores as "competitors"<br>
+                        - Track price changes across all stores by category<br>
+                        - Build "price war detection" (3+ competitors drop price within 1hr = price war)<br>
+                        - Show dashboard alert: "Price war detected in Electronics - 5 competitors moved"
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Category-Specific Pattern Detection</div>
+                    <div class="deliverable-desc">
+                        - Electronics: Detect tech release cycles (iPhone launch = pricing opportunity)<br>
+                        - Fashion: Detect seasonal shifts (winter to spring = new styles)<br>
+                        - Build a simple rule engine: IF [pattern] THEN [alert]
+                    </div>
+                </div>
+                
+                <div class="tech-spec">
+-- Aggregated insights table:
+CREATE TABLE category_insights (
+  id UUID PRIMARY KEY,
+  category VARCHAR,
+  hour TIMESTAMP,
+  avg_price_change DECIMAL, -- -5% means prices dropped avg 5%
+  price_war_detected BOOLEAN,
+  num_competitors_moved INT,
+  demand_signal VARCHAR, -- 'high', 'normal', 'low'
+  recommended_action VARCHAR,
+  created_at TIMESTAMP
+);
+                </div>
+                
+                <div class="team-assignment">
+                    <span class="team-role">Data Scientist:</span> Build aggregation pipeline + pattern detection<br>
+                    <span class="team-role">Full-Stack:</span> Build API endpoint to show alerts on dashboard<br>
+                    <span class="team-role">PM:</span> Define what patterns matter most (price wars vs seasonal)
+                </div>
+                
+                <div class="note">
+                    <span class="note-label">💡 Founder Note:</span>
+                    This is where the real competitive advantage starts. Competitors track their own store. We track the entire market. By Week 2 end, you should see market patterns that are actually useful.
+                </div>
+                
+                <div class="success-metric">
+                    <span class="metric-label">✓ Success Criteria:</span><br>
+                    <span class="metric-value">
+                        - Dashboard shows 5+ actionable alerts per day<br>
+                        - Price war detected within 30min of happening<br>
+                        - Alerts are useful (not false alarms)<br>
+                        - Historical data shows clear patterns (e.g., "Tuesday discounts happen 60% of time")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-block print-friendly">
+            <div class="week-header">
+                <div class="week-number">3</div>
+                <div class="week-title">Predictions: Seeing 12 Hours Into The Future</div>
+            </div>
+            <div class="week-content">
+                <p style="margin-bottom: 20px; font-weight: 600;">Goal: Build ML models that predict what WILL happen, not just what DID happen</p>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Time-Series Forecasting (ARIMA / Prophet)</div>
+                    <div class="deliverable-desc">
+                        - For each seller: Predict demand 24 hours ahead<br>
+                        - Model: Historical sales data → predict tomorrow's sales<br>
+                        - Update model every 4 hours with new data<br>
+                        - Accuracy target: 85%+ for 24-hour forecast
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Inventory Aging Prediction</div>
+                    <div class="deliverable-desc">
+                        - For each product: Predict if it will age out (not sell) in next 7 days<br>
+                        - Model inputs: Current age, sell-through rate, category trends<br>
+                        - Output: "This product will age out in 4 days unless you take action"
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Price Elasticity Model</div>
+                    <div class="deliverable-desc">
+                        - For each product: Learn "how sensitive is demand to price change?"<br>
+                        - Some products: -5% price = +30% demand (elastic)<br>
+                        - Others: -5% price = +5% demand (inelastic)<br>
+                        - Use this later for optimization
+                    </div>
+                </div>
+                
+                <div class="tech-spec">
+-- ML Predictions table:
+CREATE TABLE predictions (
+  id UUID PRIMARY KEY,
+  product_id UUID,
+  prediction_type VARCHAR, -- 'demand_24h', 'inventory_aging', 'price_elasticity'
+  predicted_value DECIMAL,
+  confidence DECIMAL, -- 0.85 = 85% confident
+  forecast_for TIMESTAMP,
+  created_at TIMESTAMP
+);
+                </div>
+                
+                <div class="team-assignment">
+                    <span class="team-role">Data Scientist:</span> Build all 3 ML models (ARIMA, inventory aging, elasticity)<br>
+                    <span class="team-role">ML Eng (if available):</span> Deploy models, set up inference pipeline<br>
+                    <span class="team-role">Full-Stack:</span> Store predictions in DB, build API to retrieve
+                </div>
+                
+                <div class="note">
+                    <span class="note-label">⚠️ Challenge:</span>
+                    Cold start problem: New sellers have no historical data. Use industry averages until we have 2 weeks of data. Better to be approximate than no prediction.
+                </div>
+                
+                <div class="success-metric">
+                    <span class="metric-label">✓ Success Criteria:</span><br>
+                    <span class="metric-value">
+                        - Demand prediction: 85%+ accurate 24-hour ahead<br>
+                        - Inventory alerts trigger correctly 90% of time<br>
+                        - Price elasticity model captures real behavior<br>
+                        - Predictions update every 4 hours with new data
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-block print-friendly">
+            <div class="week-header">
+                <div class="week-number">4</div>
+                <div class="week-title">The Execution Engine Begins</div>
+            </div>
+            <div class="week-content">
+                <p style="margin-bottom: 20px; font-weight: 600;">Goal: Move from predictions to actions. Build the autopilot.</p>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Price Optimization Engine</div>
+                    <div class="deliverable-desc">
+                        - Based on: prediction, elasticity, margin targets, competitor prices<br>
+                        - Calculate: "What price maximizes revenue AND margin?"<br>
+                        - Safety checks: Never drop below cost, never raise above 2x cost<br>
+                        - Initial: Require user approval. Later: Full auto
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Approval & Execution Flow</div>
+                    <div class="deliverable-desc">
+                        - Generate recommended action: "Drop price to $24.99 (from $29.99). Reason: Demand spike predicted, elasticity high"<br>
+                        - Show user: Action + reason + estimated impact<br>
+                        - User clicks: Approve / Modify / Reject<br>
+                        - Log everything for learning
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Shopify API Write Access</div>
+                    <div class="deliverable-desc">
+                        - Implement: Update product prices on Shopify automatically<br>
+                        - Safety: Batch updates (not instant), with confirmation<br>
+                        - Rollback: If something goes wrong, auto-revert to previous price
+                    </div>
+                </div>
+                
+                <div class="tech-spec">
+-- Execution recommendations table:
+CREATE TABLE execution_recommendations (
+  id UUID PRIMARY KEY,
+  store_id UUID,
+  product_id UUID,
+  action_type VARCHAR, -- 'price_update', 'promotion', 'campaign'
+  recommended_value VARCHAR,
+  reason TEXT,
+  estimated_impact VARCHAR, -- '+$500 revenue', '+15% demand'
+  status VARCHAR, -- 'pending', 'approved', 'executed', 'rejected'
+  user_action_at TIMESTAMP,
+  executed_at TIMESTAMP,
+  created_at TIMESTAMP
+);
+                </div>
+                
+                <div class="team-assignment">
+                    <span class="team-role">CTO/Lead Dev:</span> Price optimization algorithm + Shopify write API<br>
+                    <span class="team-role">Full-Stack:</span> Approval UI + workflow management<br>
+                    <span class="team-role">PM:</span> Define business rules (safety checks, margin targets)
+                </div>
+                
+                <div class="warning">⚠️ CRITICAL SAFETY MEASURE:</div>
+                <div style="margin-left: 20px; margin-bottom: 15px;">
+                    - Week 4: ALL actions require user approval (no auto-execution yet)<br>
+                    - Week 5: Approve 10 actions manually, then 20% can auto-execute<br>
+                    - Week 6: If working perfectly, full auto (but user can pause anytime)
+                </div>
+                
+                <div class="success-metric">
+                    <span class="metric-label">✓ Success Criteria:</span><br>
+                    <span class="metric-value">
+                        - Price recommendations generated 10+ times per day<br>
+                        - Each recommendation shows clear reason + impact estimate<br>
+                        - User approves 70%+ of recommendations (means they're good)<br>
+                        - Zero price update failures to Shopify<br>
+                        - Estimated revenue impact visible on dashboard
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-block print-friendly">
+            <div class="week-header">
+                <div class="week-number">5</div>
+                <div class="week-title">Beyond Price: Multi-Channel Execution</div>
+            </div>
+            <div class="week-content">
+                <p style="margin-bottom: 20px; font-weight: 600;">Goal: Expand execution to campaigns, emails, promotions (not just price)</p>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Promotional Campaign Generator</div>
+                    <div class="deliverable-desc">
+                        - Based on predictions: "Demand will be high Tuesday" → Auto-create "Tuesday Flash Sale"<br>
+                        - Generate discount recommendations (20%, 30%, bundle deal?)<br>
+                        - Set duration automatically (24h, 48h, 7 days)<br>
+                        - Show expected impact on revenue/volume
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Abandoned Cart Recovery</div>
+                    <div class="deliverable-desc">
+                        - Track when customers view products but don't buy<br>
+                        - Automatically generate: "You viewed X, here's 10% off"<br>
+                        - Integrations: Send via email (SendGrid), SMS (Twilio)<br>
+                        - Track: How many converted back?
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Inventory-Based Actions</div>
+                    <div class="deliverable-desc">
+                        - Low inventory: "Raise prices to extend runway"<br>
+                        - High inventory (aging): "Auto-discount 15% to move it"<br>
+                        - Out of stock: "Notify customers when back in stock"
+                    </div>
+                </div>
+                
+                <div class="tech-spec">
+-- Campaigns table:
+CREATE TABLE campaigns (
+  id UUID PRIMARY KEY,
+  store_id UUID,
+  campaign_type VARCHAR, -- 'flash_sale', 'abandoned_cart', 'inventory_clear'
+  name VARCHAR,
+  products_included JSONB,
+  discount_percentage INT,
+  start_at TIMESTAMP,
+  end_at TIMESTAMP,
+  status VARCHAR, -- 'draft', 'approved', 'live', 'completed'
+  created_at TIMESTAMP
+);
+                </div>
+                
+                <div class="team-assignment">
+                    <span class="team-role">Full-Stack:</span> Campaign generation + approval workflow<br>
+                    <span class="team-role">Backend Dev:</span> Email/SMS integrations (SendGrid, Twilio)<br>
+                    <span class="team-role">PM:</span> Define when each campaign type triggers
+                </div>
+                
+                <div class="note">
+                    <span class="note-label">💡 Integration Tip:</span>
+                    Don't build SendGrid/Twilio from scratch. Use their SDKs. Takes 2 hours, saves 2 weeks of debugging.
+                </div>
+                
+                <div class="success-metric">
+                    <span class="metric-label">✓ Success Criteria:</span><br>
+                    <span class="metric-value">
+                        - 5+ campaigns generated per store per week<br>
+                        - Campaign recommendations approved 60%+ (not forced)<br>
+                        - Abandoned cart recovery: 15%+ conversion rate<br>
+                        - Email sent within 1 hour of trigger<br>
+                        - ROI tracked on dashboard
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-block print-friendly">
+            <div class="week-header">
+                <div class="week-number">6</div>
+                <div class="week-title">Launch & Measure: Beta Goes Live</div>
+            </div>
+            <div class="week-content">
+                <p style="margin-bottom: 20px; font-weight: 600;">Goal: 50 beta users. Each proves Clariq makes them money.</p>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Dashboard Refinement</div>
+                    <div class="deliverable-desc">
+                        - ROI dashboard: Show sellers exactly how much Clariq made them this week<br>
+                        - "This week: +$3,250 from Clariq recommendations"<br>
+                        - Breakdown: $1,200 from price optimization, $1,050 from flash sale, $1,000 from cart recovery<br>
+                        - This is THE metric that drives retention
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Support & Onboarding</div>
+                    <div class="deliverable-desc">
+                        - Onboarding video: How to connect Shopify (3 min)<br>
+                        - Video: How approvals work (2 min)<br>
+                        - FAQ: "Why did Clariq recommend X?" (explainability)<br>
+                        - Support channel: Slack community or email (you'll manually respond)
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Metrics Dashboard (Internal)</div>
+                    <div class="deliverable-desc">
+                        - Track per beta user: Predictions accuracy, approval rate, revenue impact<br>
+                        - Identify: Who's getting most value? What's working?<br>
+                        - Identify: What's broken? (rejected recommendations, low engagement)<br>
+                        - Weekly report: "Which 10 users made most money? Why?"
+                    </div>
+                </div>
+                
+                <div class="deliverable">
+                    <div class="deliverable-title"><span class="checkmark">✓</span>Full Auto-Execution (Safe)</div>
+                    <div class="deliverable-desc">
+                        - After manual approval on 10 actions: User can toggle "Full auto mode"<br>
+                        - Requirements: Price changes capped at ±20%, all with rollback ability<br>
+                        - Daily summary email: "Clariq auto-executed 5 actions, here's what it did"
+                    </div>
+                </div>
+                
+                <div class="tech-spec">
+-- ROI tracking table:
+CREATE TABLE roi_tracking (
+  id UUID PRIMARY KEY,
+  store_id UUID,
+  date DATE,
+  revenue_from_price_optimization DECIMAL,
+  revenue_from_promotions DECIMAL,
+  revenue_from_cart_recovery DECIMAL,
+  total_clariq_impact DECIMAL,
+  total_store_revenue DECIMAL,
+  clariq_percentage DECIMAL, -- e.g., 12% of revenue from Clariq
+  created_at TIMESTAMP
+);
+                </div>
+                
+                <div class="team-assignment">
+                    <span class="team-role">PM/Founder:</span> Beta user recruitment + onboarding<br>
+                    <span class="team-role">Full-Stack Dev:</span> Dashboard polish + ROI tracking<br>
+                    <span class="team-role">Data Scientist:</span> Prediction accuracy analysis<br>
+                    <span class="team-role">Whole Team:</span> Support (you'll rotate support duty)
+                </div>
+                
+                <div class="note">
+                    <span class="note-label">🚀 Launch Strategy:</span>
+                    Don't launch with 50 users on day 1. Launch with 5, fix issues, then 15, then 50. Ramp is safer than launch.
+                </div>
+                
+                <div class="success-metric">
+                    <span class="metric-label">✓ Success Criteria (CRITICAL):</span><br>
+                    <span class="metric-value">
+                        - ✓ 50 beta users connected<br>
+                        - ✓ Each user generates 10+ recommendations in first week<br>
+                        - ✓ AVERAGE revenue impact: $1,500+ per user per week<br>
+                        - ✓ Approval rate: 60%+ (means recommendations are good)<br>
+                        - ✓ ZERO critical bugs (prices correctly updated, no data loss)<br>
+                        - ✓ User NPS: 50+ (they'd recommend to friends)<br>
+                        - ✓ Daily active users: 80%+ (they keep coming back)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <h2>🎯 Team Assignments & Responsibilities</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Primary Weeks</th>
+                    <th>Core Responsibility</th>
+                    <th>Success Metric</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>CTO / Lead Engineer</strong></td>
+                    <td>1-2, 4, 6</td>
+                    <td>Shopify integration, price optimization engine, infrastructure</td>
+                    <td>Zero API failures, <2s latency</td>
+                </tr>
+                <tr>
+                    <td><strong>Full-Stack Developer</strong></td>
+                    <td>1-6 (ongoing)</td>
+                    <td>Dashboard UI, approval workflows, data visualization, integrations</td>
+                    <td>Dashboard loads in <1s, ROI numbers accurate</td>
+                </tr>
+                <tr>
+                    <td><strong>Data Scientist</strong></td>
+                    <td>2-3, 5-6</td>
+                    <td>ML models, predictions, pattern detection, accuracy analysis</td>
+                    <td>85%+ prediction accuracy, 70%+ approval rate</td>
+                </tr>
+                <tr>
+                    <td><strong>Product Manager</strong></td>
+                    <td>1-6 (ongoing)</td>
+                    <td>Requirements, prioritization, user feedback, success metrics</td>
+                    <td>Clear specs for developers, 90% on-time delivery</td>
+                </tr>
+                <tr>
+                    <td><strong>You (Founder)</strong></td>
+                    <td>1-6 (ongoing)</td>
+                    <td>Vision, decisions, beta user recruitment, support</td>
+                    <td>50 users by Week 6, avg $1,500+ impact per user</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>⚠️ Risks & How We Mitigate Them</h2>
+        
+        <div class="risk-box">
+            <div class="risk-title">Risk: Shopify API rate limits (we hit them and crash)</div>
+            <div class="risk-mitigation">
+                <strong>Mitigation:</strong> Build request queuing + exponential backoff. Cap at 400 requests/minute (well below Shopify's limits). Monitor daily.
+            </div>
+        </div>
+        
+        <div class="risk-box">
+            <div class="risk-title">Risk: Cold start problem (new users have no historical data for predictions)</div>
+            <div class="risk-mitigation">
+                <strong>Mitigation:</strong> Use industry benchmarks for first 2 weeks. "Your category average is X; you're Y% above/below." Improve as data accumulates.
+            </div>
+        </div>
+        
+        <div class="risk-box">
+            <div class="risk-title">Risk: Price update bugs (we crash a seller's pricing)</div>
+            <div class="risk-mitigation">
+                <strong>Mitigation:</strong> Week 4-5: All manual. Week 6: 20% auto with instant rollback capability. Never auto-execute without user having approved it manually first.
+            </div>
+        </div>
+        
+        <div class="risk-box">
+            <div class="risk-title">Risk: ML models are wrong (predictions are garbage)</div>
+            <div class="risk-mitigation">
+                <strong>Mitigation:</strong> Track prediction accuracy daily. If <70%, revert to simpler model. Better to be simple + accurate than complex + wrong.
+            </div>
+        </div>
+        
+        <div class="risk-box">
+            <div class="risk-title">Risk: Integration with SendGrid/Twilio fails</div>
+            <div class="risk-mitigation">
+                <strong>Mitigation:</strong> Build gracefully degraded: If SMS fails, try email. If email fails, show alert on dashboard instead. Never silently fail.
+            </div>
+        </div>
+        
+        <div class="risk-box">
+            <div class="risk-title">Risk: We run out of time in Week 6</div>
+            <div class="risk-mitigation">
+                <strong>Mitigation:</strong> CUT features progressively. In priority order (drop first if needed): Campaigns → Email automation → SMS → Full auto. But keep price optimization (it's the core).
+            </div>
+        </div>
+
+        <h2>📊 Definition of Success (End of Week 6)</h2>
+        
+        <div class="success-metric">
+            <span class="metric-label">Product Metrics:</span><br>
+            <span class="metric-value">
+                ✓ 50 beta users onboarded<br>
+                ✓ 100+ product price recommendations executed (approved by users)<br>
+                ✓ 10+ promotional campaigns live<br>
+                ✓ 500+ emails sent (cart recovery, campaigns)<br>
+                ✓ 95%+ uptime (no critical outages)
+            </span>
+        </div>
+        
+        <div class="success-metric">
+            <span class="metric-label">Business Metrics (THE MOST IMPORTANT):</span><br>
+            <span class="metric-value">
+                ✓ Average user revenue impact: $1,500-2,000 per week<br>
+                ✓ Approval rate: 60%+ (users say "yes" to recommendations)<br>
+                ✓ Daily active users: 80%+ (they use it every day)<br>
+                ✓ NPS: 50+ (would they recommend? YES)<br>
+                ✓ Churn: 0% (no one leaves)<br>
+                ✓ Testimonials: "Clariq made me $X this week"
+            </span>
+        </div>
+        
+        <div class="success-metric">
+            <span class="metric-label">Quality Metrics:</span><br>
+            <span class="metric-value">
+                ✓ <1% error rate on price updates<br>
+                ✓ Zero data loss incidents<br>
+                ✓ Prediction accuracy: 85%+<br>
+                ✓ API response time: <500ms median<br>
+                ✓ Support tickets: <2 per user in first week (and we resolve them)
+            </span>
+        </div>
+
+        <h2>🚀 What Happens Next (After Week 6)</h2>
+        
+        <div class="intro-box">
+            <p><strong>If we hit all success metrics:</strong></p>
+            <p>We immediately shift from MVP to Series A fundraising. We have proof: "50 beta users, each making $1,500+ extra per week." That's $300K+ weekly value = $1.2M+ monthly impact. VCs will fund this.</p>
+            
+            <p style="margin-top: 20px;"><strong>If we miss metrics:</strong></p>
+            <p>We iterate. Maybe predictions need tuning. Maybe we focus on email instead of promotions. We have a real learning loop. Fix it within 2 weeks, then fundraise.</p>
+            
+            <p style="margin-top: 20px;"><strong>Year 2 roadmap (beyond MVP):</strong></p>
+            <ul style="margin-top: 10px;">
+                <li>Amazon integration (same execution engine, but for Amazon)</li>
+                <li>eBay + WooCommerce (multi-platform)</li>
+                <li>Predictive customer churn (retention)</li>
+                <li>Multi-language support (international)</li>
+                <li>Full omnichannel (WhatsApp, SMS, push, email coordinated)</li>
+            </ul>
+        </div>
+
+        <h2>💡 Important Reminders For The Team</h2>
+        
+        <div class="note">
+            <span class="note-label">Founder to Team:</span>
+            This is the most important 6 weeks of Clariq. What we build now is the foundation for everything. If data isn't flowing reliably, predictions are wrong. If predictions are wrong, executions fail. Focus on quality over speed.
+        </div>
+        
+        <div class="note">
+            <span class="note-label">For the CTO:</span>
+            The Shopify integration is make-or-break. Spend Week 1 getting it perfect. Don't move on until data flows reliably. One failed webhook = one lost data point = wrong predictions. Obsess over this.
+        </div>
+        
+        <div class="note">
+            <span class="note-label">For the Data Scientist:</span>
+            Don't build the perfect ML model. Build a good one that works. You have 2 weeks to do it. Better to launch with 85% accuracy than delay and get 95% later.
+        </div>
+        
+        <div class="note">
+            <span class="note-label">For the Full-Stack Dev:</span>
+            The UI/UX is what sellers see. Make it beautiful and obvious. When they see "+$3,250 this week from Clariq," that's the moment they become believers. Dashboard is your superpower.
+        </div>
+        
+        <div class="note">
+            <span class="note-label">For the PM:</span>
+            Your job is to say "no." We'll have 100 ideas. Focus the team on the 5 that matter. Ruthlessly prioritize. Every feature we add delays launch by days.
+        </div>
+
+        <div class="footer">
+            <p>Clariq MVP Technical Roadmap | 6-Week Implementation Plan</p>
+            <p>Built by a founder who wants to move fast and actually ship.</p>
+            <p>Last updated: July 2026</p>
+        </div>
+    </div>
+</body>
+</html>
