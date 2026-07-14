@@ -18,7 +18,7 @@ The difference between this and competitors: We understand WHY, not just WHAT.
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from fbprophet import Prophet
+from prophet import Prophet
 import warnings
 warnings.filterwarnings('ignore')
 

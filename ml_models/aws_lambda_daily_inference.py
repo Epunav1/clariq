@@ -195,7 +195,7 @@ class AWSInferenceEngine:
         """Run inference with the model"""
         if model is None:
             # Train on the fly if model not available
-            from fbprophet import Prophet
+            from prophet import Prophet
             model = Prophet(yearly_seasonality=True, weekly_seasonality=True)
             model.fit(df[['ds', 'y']])
         

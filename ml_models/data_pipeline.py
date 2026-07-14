@@ -199,7 +199,7 @@ class DataPipeline:
                                           labels=['low', 'medium', 'high', 'full'])
         
         # Fill any NaN from rolling windows
-        df = df.fillna(method='bfill').fillna(method='ffill')
+        df = df.bfill().ffill()
         
         # Data quality checks
         print(f"   ✓ Data shape: {df.shape}")
@@ -221,7 +221,7 @@ class DataPipeline:
         
         print(f"\n🔮 Running inference ({days_ahead} days ahead)...")
         
-        from fbprophet import Prophet
+        from prophet import Prophet
         
         # Prepare for Prophet
         df_prophet = df[['ds', 'y']].copy()
